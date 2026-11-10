@@ -1,771 +1,733 @@
 
-<h1 align="center">Enterprise Revenue Protection</h1>
+<div align="center">
+  <h1>ENTERPRISE REVENUE PROTECTION</h1>
+  <h2>Customer Churn &amp; Financial Risk Analytics</h2>
+  <p><strong>End-to-End Data Analytics Project</strong></p>
+  <p>SQL | Python | Statistical Analysis | Machine Learning | Revenue Intelligence</p>
+</div>
 
-<h3 align="center">Telco Customer Churn Analysis & Predictive Retention Strategy</h3>
+<hr>
 
-<p align="center">
-  <strong>Data Analytics | SQL | Python | Statistical Analysis | Machine Learning | Financial Modeling</strong>
-</p>
+<h2>1. Executive Summary</h2>
 
-<p align="center">
-  An end-to-end analytics project that transforms customer churn data into actionable revenue protection strategies.
-</p>
+<p>Customer churn is not simply a customer-retention problem. It represents a recurring revenue risk that can affect financial performance, customer lifetime value, and long-term business growth.</p>
 
----
+<p>This project develops an end-to-end analytical framework to identify customer churn patterns, quantify recurring revenue exposure, predict churn risk, and prioritize retention interventions based on potential financial impact.</p>
 
-## 1. Project Overview
+<p>Using a dataset of <strong>7,043 telecom customers</strong>, I integrated SQL-based analytics, statistical hypothesis testing, survival analysis, predictive modeling, and financial scenario analysis to move from historical churn reporting toward forward-looking revenue protection.</p>
 
-Customer churn is one of the biggest challenges for subscription-based businesses, particularly in the telecommunications industry. When customers discontinue their subscriptions, businesses lose recurring revenue, and acquiring replacement customers can be expensive.
 
-The goal of this project was to go beyond simply identifying how many customers leave a telecommunications company. I wanted to understand **why customers leave, which customer segments contribute most to revenue loss, how accurately churn can be predicted, and how a business can prioritize its retention budget to protect revenue.**
 
-I developed an end-to-end revenue protection workflow using the Telco Customer Churn dataset. The project combines data cleaning, SQL-based data warehousing, cohort analysis, statistical hypothesis testing, survival analysis, machine learning, model explainability, and financial ROI modeling.
+How can churn probability be translated into measurable financial exposure and potential revenue loss?
 
-Rather than treating churn as only a classification problem, I approached it as a business and financial risk problem. The final objective was to turn customer-level predictions into an actionable retention strategy.
 
-### Project at a Glance
 
-| Component | Details |
-|---|---|
-| Industry | Telecommunications |
-| Business Problem | Customer churn and recurring revenue loss |
-| Dataset | Telco Customer Churn |
-| Original Records | 7,043 customers |
-| Data Processing | Python, Pandas, NumPy |
-| Database | SQLite |
-| SQL Analysis | CTEs, joins, aggregations, window functions |
-| Statistical Analysis | Chi-square, Welch's t-test |
-| Customer Lifecycle Analysis | Kaplan-Meier survival analysis |
-| Machine Learning | Logistic Regression, Random Forest, XGBoost |
-| Model Explainability | SHAP |
-| Financial Analysis | Probability-weighted revenue exposure and retention ROI |
+Which customers represent the highest combination of churn risk and revenue contribution?
 
----
 
-## 2. Business Objectives
 
-I structured the project around five main business questions:
+How can retention resources be prioritized to protect the greatest amount of recurring revenue?
 
-1. **Understanding Customer Churn:** Which customer characteristics, services, payment methods, and contract types are associated with customer churn?
 
-2. **Identifying Revenue Leakage:** Which customer segments contribute most to lost monthly recurring revenue (MRR)?
 
-3. **Validating Business Assumptions:** Are the relationships between customer characteristics, monthly charges, and churn statistically significant?
+What is the potential financial return of targeted retention strategies?</p>
+</blockquote>
 
-4. **Predicting Customer Churn:** Can machine learning identify customers who are at risk of leaving before the business loses their revenue?
+<h3>Project Highlights</h3>
 
-5. **Prioritizing Retention Investment:** How should a business allocate its retention budget to customers who represent the greatest financial risk?
-
-These questions shaped the entire analytical workflow, from initial data preparation to the final financial recommendations.
-
----
-
-## 3. Dataset Description
-
-I used the Telco Customer Churn dataset, which contains customer demographic information, subscribed services, account details, billing information, and churn status.
-
-The dataset contains **7,043 customer records** and includes variables such as:
-
-| Category | Variables |
-|---|---|
-| Customer Demographics | Gender, Senior Citizen, Partner, Dependents |
-| Account Information | Customer ID, Tenure |
-| Subscription Services | Phone Service, Multiple Lines, Internet Service |
-| Additional Services | Online Security, Online Backup, Device Protection, Tech Support |
-| Entertainment Services | Streaming TV, Streaming Movies |
-| Billing Information | Monthly Charges, Total Charges |
-| Contract Information | Contract Type, Paperless Billing, Payment Method |
-| Target Variable | Churn |
-
-The target variable was converted into a binary format:
-
-- `1` = Customer churned.
-- `0` = Customer remained with the company.
-
-This format made the dataset suitable for statistical testing and supervised machine learning.
-
----
-
-## 4. Step-by-Step Project Workflow
-
-### Step 1: Data Loading, Auditing and Cleaning
-
-I started by importing the dataset into Python using Pandas and NumPy.
-
-Before performing any analysis, I checked the dataset's structure and integrity to identify potential data quality problems.
-
-#### 1.1 Initial Data Audit
-
-The first checks focused on:
-
-- Total number of records and columns.
-- Unique customer IDs.
-- Duplicate records.
-- Missing values.
-- Hidden missing values represented by whitespace.
-- Data types of numerical and categorical variables.
-
-One issue I identified was that some entries in `TotalCharges` contained whitespace instead of numerical values. These entries could not be processed correctly as numerical data.
-
-#### 1.2 Handling Missing Values and Data Types
-
-| Issue | Action Taken |
-|---|---|
-| Whitespace in `TotalCharges` | Replaced whitespace with NaN |
-| Non-numeric `TotalCharges` | Converted to numerical values |
-| Missing charges for new customers | Handled as zero during initial cleaning |
-| `SeniorCitizen` encoded as 0 and 1 | Converted into Yes/No categories |
-| Churn stored as Yes/No | Created a binary `Churn_Flag` |
-| Customer IDs | Checked for uniqueness |
-
-I also created temporary verification columns to compare reported total charges against expected charges calculated using monthly charges and customer tenure.
-
-Expected Total Charges:
-
-```python
-Expected Total Charges = Monthly Charges * Tenure
-```
-
-The absolute difference between the two values was calculated to examine possible billing discrepancies.
-
-#### 1.3 Feature Standardization
-
-I standardized service-related categorical variables to make them easier to analyze.
-
-For example:
-
-- `No internet service` was standardized to `No` for relevant add-on services.
-- `No phone service` was standardized to `No` for multiple-line analysis.
-- An `Is_Automatic_Payment` binary feature was created using the payment method.
-
-**Output:** `telco_churn_cleaned_master.csv`
-
-The purpose of this stage was to establish a consistent dataset before moving into database development and analytical modeling.
-
----
-
-### Step 2: SQL Data Warehousing and Star Schema Design
-
-After cleaning the data, I moved beyond working with a single flat dataset and designed a relational SQL warehouse using SQLite.
-
-The objective was to organize customer information into separate logical tables, making the data easier to query, maintain, and analyze.
-
-#### 2.1 Database Architecture
-
-I designed a Star Schema consisting of three tables:
-
-```text
-                 dim_customers
-                       |
-                       |
-                       |
-fact_customer_billing ---- dim_services
-```
-
-#### 2.2 Table Structure
-
-| Table | Purpose |
-|---|---|
-| `dim_customers` | Stores demographic and customer-related attributes |
-| `dim_services` | Stores information about subscribed telecommunications services |
-| `fact_customer_billing` | Stores billing, contract, tenure, and churn information |
-
-The central fact table contained customer billing and churn metrics, while the dimension tables stored customer and service attributes.
-
-Each table was populated using Pandas `to_sql()` and stored in the SQLite database:
-
-`telco_revenue_risk.db`
-
-#### 2.3 Relational SQL Analysis
-
-Once the database was populated, I used SQL joins to combine information from the three tables.
-
-I then developed multi-stage analytical queries using:
-
-- Common Table Expressions (CTEs).
-- CASE statements for customer segmentation.
-- GROUP BY for cohort-level aggregations.
-- Aggregate functions such as COUNT, SUM, and AVG.
-- Window functions for calculating cumulative revenue losses.
-- JOIN operations to combine customer, service, and billing information.
-
-This allowed me to perform more structured analysis without repeatedly manipulating the original flat dataset.
-
-**Output:** A normalized SQLite database containing three analytical tables.
-
----
-
-### Step 3: Cohort Analysis and Revenue Leakage Identification
-
-After establishing the database, I used SQL to investigate how churn behavior changes across different customer lifecycle stages and contract types.
-
-The central question was:
-
-**Which customer cohorts are responsible for the greatest recurring revenue losses?**
-
-#### 3.1 Customer Lifecycle Segmentation
-
-I divided customers into four tenure-based cohorts:
-
-| Cohort | Customer Tenure |
-|---|---|
-| Early Lifecycle | 0–12 months |
-| Mid Lifecycle | 13–24 months |
-| Established | 25–48 months |
-| Mature Accounts | More than 48 months |
-
-I then segmented each cohort by contract type:
-
-- Month-to-month.
-- One-year.
-- Two-year.
-
-This produced a more detailed view of customer churn than examining the overall churn rate.
-
-#### 3.2 Revenue Metrics
-
-For each cohort, I calculated:
-
-**Average Revenue Per User (ARPU)**
-
-```text
-ARPU = Total Monthly Charges / Number of Customers
-```
-
-**Gross Monthly Recurring Revenue (MRR)**
-
-```text
-MRR = SUM(Monthly Charges)
-```
-
-**Direct Monthly Revenue Loss**
-
-```text
-Lost MRR = SUM(Monthly Charges of Churned Customers)
-```
-
-**Cumulative MRR Loss**
-
-I used SQL window functions to calculate cumulative revenue losses within each contract category.
-
-This helped identify how revenue exposure accumulated across customer lifecycle segments.
-
-#### 3.3 Cohort Analysis Findings
-
-The SQL analysis revealed substantial differences between contract types.
-
-**Month-to-Month Customer Cohorts**
-
-| Tenure | Customers | Churn Rate | Direct MRR Lost |
-|---|---:|---:|---:|
-| 0–12 months | 1,994 | 51.35% | $68,301.45 |
-| 13–24 months | 737 | 37.72% | $21,980.30 |
-| 25–48 months | 802 | 32.92% | $22,557.00 |
-| Over 48 months | 342 | 26.02% | $8,008.35 |
-
-**Contract Comparison**
-
-| Contract Type | Early Lifecycle Churn |
-|---|---:|
-| Month-to-month | 51.35% |
-| One-year | 10.48% |
-| Two-year | 0.00% |
-
-The early-lifecycle month-to-month cohort had the highest churn rate and the largest direct monthly revenue loss.
-
-The analysis also showed that month-to-month cohorts accumulated approximately **$120,847.10 in direct monthly revenue loss** across the four tenure segments.
-
-**Business Implication:** Early customer engagement and retention initiatives should receive particular attention, especially for month-to-month subscribers.
-
----
-
-### Step 4: Statistical Analysis and Hypothesis Testing
-
-After identifying patterns through cohort analysis, I wanted to determine whether the observed relationships between customer characteristics and churn were statistically significant.
-
-I used SciPy for hypothesis testing and the `lifelines` library for survival analysis.
-
-#### 4.1 Chi-Square Test of Independence
-
-I used the Chi-square test to investigate whether categorical customer characteristics were associated with churn.
-
-The following relationships were tested:
-
-1. Contract Type vs. Churn.
-2. Internet Service vs. Churn.
-3. Automatic Payment vs. Churn.
-4. Technical Support vs. Churn.
-
-**Hypotheses**
-
-- Null Hypothesis (H0): There is no statistically significant association between the selected categorical variable and customer churn.
-- Alternative Hypothesis (H1): There is a statistically significant association.
-
-**Chi-Square Test Results**
-
-| Variable | Chi-Square Statistic | P-value |
-|---|---:|---:|
-| Contract Type | 1184.60 | 5.86 × 10⁻²⁵⁸ |
-| Internet Service | 732.31 | 9.57 × 10⁻¹⁶⁰ |
-| Automatic Payment | 309.35 | 3.03 × 10⁻⁶⁹ |
-| Tech Support | 190.17 | 2.92 × 10⁻⁴³ |
-
-All four tests produced p-values below 0.001.
-
-Therefore, I rejected the null hypothesis for each test.
-
-The findings indicate statistically significant associations between these customer characteristics and churn. However, statistical association alone does not establish causation.
-
-#### 4.2 Welch's Independent T-Test
-
-Next, I investigated whether customers who churned had significantly different monthly bills from customers who remained.
-
-I selected Welch's t-test because it does not assume equal population variances between the two groups.
-
-**Hypotheses**
-
-- H0: The mean monthly charges of churned and retained customers are equal.
-- H1: The mean monthly charges are different.
-
-**Test Results**
-
-| Metric | Churned Customers | Retained Customers |
-|---|---:|---:|
-| Mean Monthly Bill | $74.44 | $61.27 |
-| Standard Deviation | $24.67 | $31.09 |
-
-- Welch's t-statistic: 18.4075
-- P-value: 8.59 × 10⁻⁷³
-- Mean monthly bill difference: $13.18
-
-**Conclusion:** Reject H0.
-
-Churned customers paid approximately $13.18 more per month on average.
-
-This finding suggested that higher monthly billing was associated with greater churn in the dataset. It provided another useful direction for customer segmentation and retention analysis.
-
-#### 4.3 Kaplan-Meier Survival Analysis
-
-I then used Kaplan-Meier survival analysis to examine customer retention over time.
-
-Unlike a simple churn-rate calculation, survival analysis considers the time customers remain with the company before the churn event.
-
-I used:
-
-- `KaplanMeierFitter` from the Lifelines library.
-- Customer tenure as the duration variable.
-- Churn status as the event indicator.
-
-The survival function estimates the probability that a customer remains with the company beyond a particular point in time.
-
-```text
-S(t) = P(T > t)
-```
-
-Where T represents the time until churn.
-
-**Retention Probabilities**
-
-| Customer Tenure | Estimated Survival Probability |
-|---|---:|
-| 3 months | 91.37% |
-| 6 months | 88.48% |
-| 12 months | 84.32% |
-| 24 months | 78.87% |
-| 36 months | 74.85% |
-| 48 months | 70.88% |
-| 60 months | 66.44% |
-| 72 months | 59.28% |
-
-I also compared survival probabilities between different contract types.
-
-| Contract Type | 12-Month Survival Probability |
-|---|---:|
-| Month-to-month | 70.31% |
-| One-year | 99.08% |
-
-The comparison reinforced the earlier cohort findings: customers on longer-term contracts demonstrated substantially higher retention probabilities.
-
-**Business Implication:** Retention strategies should focus on the early customer lifecycle, where the probability of losing customers is comparatively high.
-
----
-
-### Step 5: Machine Learning-Based Churn Prediction
-
-After completing the descriptive and statistical analysis, I moved into predictive modeling.
-
-The objective was to build a model that could estimate the probability of individual customers leaving the company.
-
-Instead of relying only on historical churn percentages, I wanted to use customer demographics, subscription information, billing characteristics, and tenure to identify customers who may be at risk.
-
-#### 5.1 Extracting the Modeling Dataset
-
-I retrieved the customer-level data directly from the SQLite warehouse by joining:
-
-- `fact_customer_billing`
-- `dim_customers`
-- `dim_services`
-
-This produced a modeling dataset containing all 7,043 customer records.
-
-The target variable was `churn_flag`, while the remaining customer characteristics were used as predictive features.
-
-#### 5.2 Data Preprocessing
-
-Before training the models, I performed the following operations:
-
-| Operation | Purpose |
-|---|---|
-| Customer ID separation | Retained IDs for linking predictions to individual customers, without using them as model features |
-| Target separation | Isolated `churn_flag` as the prediction target |
-| One-hot encoding | Converted categorical variables into numerical representations using `pd.get_dummies()` |
-| Train-test split | Divided the dataset into 80% training and 20% testing data |
-| Stratification | Preserved the churn-class distribution across both datasets |
-| Feature scaling | Standardized selected numerical features |
-
-The numerical features selected for scaling were:
-
-- `tenure_months`
-- `monthly_charges`
-- `total_charges`
-
-I used `StandardScaler`, fitting it on the training data and applying the same transformation to the testing data to avoid data leakage through preprocessing.
-
-I also used a fixed random state of 42 to make the train-test split reproducible.
-
-#### 5.3 Model Benchmarking
-
-I trained and compared three classification algorithms.
-
-| Model | Purpose |
-|---|---|
-| Logistic Regression | Establishes a baseline classification model and provides a relatively interpretable benchmark |
-| Random Forest | Captures nonlinear relationships and interactions between customer features |
-| XGBoost | Uses gradient boosting to capture complex patterns in customer churn behavior |
-
-Because the dataset contained an imbalance between churned and retained customers, I incorporated class-imbalance handling:
-
-- `class_weight='balanced'` for Logistic Regression.
-- `class_weight='balanced'` for Random Forest.
-- `scale_pos_weight` for XGBoost.
-
-#### 5.4 Model Evaluation
-
-I used ROC-AUC to compare the models.
-
-ROC-AUC evaluates how well a classifier distinguishes between churned and retained customers across different classification thresholds.
-
-**Model Benchmarking Results**
-
-| Model | ROC-AUC |
-|---|---:|
-| Logistic Regression | 0.8407 |
-| Random Forest | 0.8420 |
-| XGBoost | **0.8432** |
-
-XGBoost achieved the highest ROC-AUC among the three models, so I selected it for the subsequent churn-risk scoring process.
-
-#### 5.5 Recall-Oriented Threshold Tuning
-
-A default classification threshold of 0.50 is not necessarily the best choice for a business trying to identify as many potential churners as possible.
-
-In this project, missing a customer who is about to leave could mean losing an opportunity to intervene.
-
-Therefore, I explored threshold adjustment with a target recall of approximately 80% or higher.
-
-At the default threshold:
-
-- Recall: 81.82%.
-
-The threshold-selection procedure selected 0.01, resulting in:
-
-| Metric | Result |
-|---|---:|
-| Recall | 100% |
-| True Negatives | 0 |
-| False Positives | 1,035 |
-| False Negatives | 0 |
-| True Positives | 374 |
-
-This achieved perfect recall on the test set, but it classified every test customer as a potential churner.
-
-That means the threshold was too aggressive for a practical retention campaign. It demonstrates an important trade-off: increasing recall can create a substantial number of false positives.
-
-The ROC-AUC comparison was therefore more informative for model discrimination than this particular threshold result. A more balanced operating threshold would need to be selected using business costs, precision, recall, and campaign capacity.
-
-#### 5.6 Model Explainability Using SHAP
-
-After selecting XGBoost, I used SHAP (SHapley Additive exPlanations) to understand which features contributed most to the model's predictions.
-
-This was important because a prediction model should not simply identify high-risk customers; it should also provide insight into the characteristics influencing its predictions.
-
-I calculated mean absolute SHAP values to rank the global feature importance.
-
-**Top Five Global Churn Predictors**
-
-| Rank | Feature | Mean Absolute SHAP Value |
-|---:|---|---:|
-| 1 | Two-year contract | 0.6099 |
-| 2 | Customer tenure | 0.4607 |
-| 3 | Fiber-optic internet | 0.2861 |
-| 4 | One-year contract | 0.2847 |
-| 5 | Monthly charges | 0.1931 |
-
-The results highlighted contract type, tenure, internet service, and monthly charges as important features influencing the model's predictions.
-
-SHAP importance measures the magnitude of a feature's contribution, not whether it increases or decreases churn risk. The direction of individual feature effects would require examining SHAP values at the feature level.
-
-**Output:** A scored test dataset containing customer information, predicted churn probabilities, and assigned risk categories.
-
-I divided the predicted probabilities into three risk tiers:
-
-| Risk Category | Predicted Churn Probability |
-|---|---|
-| Low Risk | 0–35% |
-| Medium Risk | 35–65% |
-| High Risk | 65–100% |
-
-The scored dataset was exported as:
-
-`telco_step4_scored_accounts.csv`
-
----
-
-### Step 6: Financial Risk Quantification and Retention ROI Modeling
-
-This was the final stage of the project, where I connected predictive analytics with financial decision-making.
-
-The objective was to translate churn probabilities into estimated revenue exposure and identify which customers should receive priority in a retention campaign.
-
-#### 6.1 Probability-Weighted Revenue Exposure
-
-I introduced the concept of Probability-weighted Capital at Risk (pCaR).
-
-Rather than treating every customer as equally likely to churn, I weighted their monthly revenue by the model's predicted churn probability.
-
-The calculation was:
-
-```text
-Monthly pCaR = Predicted Churn Probability * Monthly Charges
-```
-
-Annualized exposure was calculated as:
-
-```text
-Annual pCaR = Monthly pCaR * 12
-```
-
-I then aggregated these values across the test portfolio.
-
-This provided an estimate of expected revenue exposure based on the model's predicted churn probabilities.
-
-#### 6.2 Portfolio-Level Financial Exposure
-
-The model generated predictions for 1,409 customers in the test dataset.
-
-**Test Portfolio Financial Summary**
-
-| Financial Metric | Result |
-|---|---:|
-| Test Portfolio Size | 1,409 customers |
-| Total Monthly Recurring Revenue | $90,301.20 |
-| Annualized Recurring Revenue | $1,083,614.40 |
-| Expected Monthly pCaR | $41,749.91 |
-| Expected Annual pCaR | $500,998.97 |
-| Monthly pCaR as a Percentage of MRR | 46.23% |
-
-These figures represent model-based exposure estimates for the test portfolio, not confirmed future revenue losses.
-
-#### 6.3 Identifying High-Risk, High-Value Customers
-
-I did not want to allocate retention resources equally across all customers.
-
-Instead, I introduced a targeting strategy that prioritized customers meeting two conditions:
-
-```text
-Predicted Churn Probability >= 0.60
-
-AND
-
-Monthly Charges >= Median Monthly Bill
-```
-
-The median monthly bill in the test portfolio was $69.95.
-
-This approach focused on customers who had both a relatively high predicted probability of leaving and comparatively high monthly billing.
-
-**Priority Retention Cohort**
-
-| Metric | Result |
-|---|---:|
-| Targeted Customers | 349 |
-| Percentage of Test Portfolio | 24.77% |
-| Annual pCaR Exposure | $282,247.21 |
-| Share of Total pCaR | 56.34% |
-
-The results showed that approximately one-quarter of the test portfolio accounted for more than half of its estimated churn-related revenue exposure.
-
-This provided a clear basis for prioritizing retention resources.
-
-#### 6.4 Retention Campaign Design
-
-I then developed a hypothetical retention campaign to evaluate whether targeted customer interventions could generate a positive financial return.
-
-The proposed intervention consisted of:
-
-| Intervention | Monthly Cost per Customer |
-|---|---:|
-| Contract Pricing Discount | $10 |
-| Technical Support Subsidy | $5 |
-| **Total Monthly Cost** | **$15** |
-
-The annual retention cost per targeted customer was:
-
-```text
-15 * 12 = $180
-```
-
-I also introduced an assumed relative churn reduction of 35%.
-
-This was a modeling assumption used to simulate potential campaign performance, not an experimentally measured retention rate.
-
-#### 6.5 Financial Impact Simulation
-
-I estimated preserved annual revenue by applying the assumed 35% retention success rate to the annual pCaR exposure of the targeted cohort.
-
-```text
-Preserved Revenue = Target Annual pCaR * 35%
-```
-
-The net financial gain was calculated as:
-
-```text
-Net Gain = Preserved Revenue - Retention Cost
-```
-
-I also calculated the campaign's revenue-to-cost ratio:
-
-```text
-Revenue-to-Cost Ratio = Preserved Revenue / Retention Spend
-```
-
-**Retention Campaign Simulation Results**
-
-| Financial Metric | Result |
-|---|---:|
-| Targeted Customers | 349 |
-| Annual Cost per Customer | $180 |
-| Total Annual Retention Spend | $62,820.00 |
-| Assumed Retention Success Rate | 35% |
-| Estimated Preserved Annual Revenue | $98,786.52 |
-| Estimated Net Financial Gain | $35,966.52 |
-| Revenue-to-Cost Ratio | **1.57x** |
-| Conventional Net ROI | **57.3%** |
-
-The simulation suggested that a targeted retention campaign could generate more preserved revenue than its estimated intervention cost under the assumptions used.
-
-#### 6.6 Executive Retention Action Ledger
-
-Finally, I exported the selected high-risk, high-value customers into a prioritized action ledger.
-
-The ledger included:
-
-- Customer ID.
-- Contract type.
-- Internet service.
-- Monthly charges.
-- Predicted churn probability.
-- Annual pCaR exposure.
-- Estimated net financial gain.
-
-I sorted the customers by annual pCaR exposure in descending order.
-
-This produced a customer-level output that could serve as a starting point for a retention team to prioritize outreach and allocate intervention budgets.
-
-**Output:** `telco_step5_executive_retention_action_ledger.csv`
-
----
-
-## 5. Final Business Findings
-
-The project brought together customer behavior, statistical evidence, predictive modeling, and financial analysis.
-
-| Finding | Business Significance |
-|---|---|
-| Early-stage month-to-month customers had a 51.35% churn rate. | Prioritize retention during the first year. |
-| Two-year contracts showed substantially lower churn. | Contract duration is an important segmentation variable. |
-| Churned customers had higher average monthly bills. | Investigate pricing and perceived service value. |
-| Contract type, internet service, automatic payment, and tech support were significantly associated with churn. | Use these characteristics in customer segmentation. |
-| XGBoost achieved a ROC-AUC of 0.8432. | Demonstrated useful predictive discrimination. |
-| 349 test customers met the high-risk, high-value targeting criteria. | Focus retention resources on a smaller customer segment. |
-| The hypothetical campaign generated a modeled $35,966.52 net gain. | Targeted retention may offer financial value under the stated assumptions. |
-
----
-
-## 6. Technical Skills Demonstrated
-
-| Area | Tools and Techniques |
-|---|---|
-| Data Cleaning | Python, Pandas, NumPy |
-| Data Integrity | Duplicate checks, missing-value handling, type conversion |
-| Database Development | SQLite, relational tables, Star Schema |
-| SQL Analytics | CTEs, CASE, JOINs, GROUP BY, window functions |
-| Business Analytics | Cohort analysis, churn rates, ARPU, MRR |
-| Statistical Analysis | Chi-square tests, Welch's t-test |
-| Survival Analysis | Kaplan-Meier estimation |
-| Machine Learning | Scikit-learn, XGBoost |
-| Model Evaluation | ROC-AUC, recall, confusion matrix, precision-recall curve |
-| Model Explainability | SHAP |
-| Financial Modeling | pCaR, revenue exposure, retention cost, ROI simulation |
-
----
-
-## 7. Project Deliverables
-
-The workflow generated several reusable analytical outputs.
-
-| File | Description |
-|---|---|
-| `telco_churn_cleaned_master.csv` | Cleaned customer dataset |
-| `telco_revenue_risk.db` | SQLite database containing the Star Schema |
-| `telco_step3_statistical_summary.csv` | Statistical summary export |
-| `telco_step4_scored_accounts.csv` | Test customers with predicted churn probabilities and risk categories |
-| `telco_step5_executive_retention_action_ledger.csv` | Prioritized high-risk customer list with financial exposure estimates |
-
----
-
-## 8. Limitations and Further Improvements
-
-I also identified several areas that would need further attention before this workflow could be deployed in a real business environment.
-
-1. **Classification Threshold:** The selected 0.01 threshold produced 100% recall but also classified every test customer as a churn risk. A more balanced threshold should be selected based on campaign capacity and the relative costs of false positives and false negatives.
-
-2. **Retention Assumptions:** The 35% churn reduction was an assumed scenario. An actual retention campaign or controlled experiment would be needed to establish its effectiveness.
-
-3. **Financial Exposure:** pCaR is a probability-weighted revenue estimate, not a guaranteed future loss. It assumes that monthly charges represent the revenue exposure over the annualized horizon.
-
-4. **ROI Terminology:** The reported 1.57x figure is preserved revenue divided by campaign spend. Expressed as conventional net ROI, the modeled return is approximately 57.3%.
-
-5. **Model Validation:** Further validation using cross-validation, calibration analysis, and a separate validation dataset would strengthen confidence in the predictions.
-
-6. **Data Cleaning Consistency:** The notebook initially fills zero-tenure customers' total charges with zero, but a later processing stage changes those values to monthly charges. This should be standardized and documented before final deployment.
-
-These improvements would help move the project from an analytical prototype towards a more reliable business decision-support system.
-
----
-
-## 9. Conclusion
-
-This project allowed me to approach customer churn from multiple perspectives rather than treating it as a standalone machine learning problem.
-
-I started with raw customer data, investigated its quality, developed a relational SQL database, and used cohort analysis to understand revenue leakage. I then applied statistical techniques to validate important customer relationships, built predictive models to estimate churn probabilities, and used SHAP to interpret the model's predictions.
-
-Finally, I translated those predictions into financial exposure estimates and developed a hypothetical retention campaign to evaluate how a business could prioritize its resources.
-
-**The main takeaway was that identifying customers who might leave is only one part of solving the churn problem. The real business value comes from understanding which customers represent the greatest financial risk and using that information to make better retention decisions.**
-
----
-
-<p align="center">
-  <strong>Enterprise Revenue Protection | End-to-End Data Analytics Project</strong>
-</p>
+<table>
+  <thead>
+    <tr>
+      <th>Analytical Area</th>
+      <th>Key Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Customers analyzed</td><td>7,043</td></tr>
+    <tr><td>Highest-risk contract segment</td><td>Month-to-month</td></tr>
+    <tr><td>Month-to-month churn rate (0–12 months)</td><td>51.35%</td></tr>
+    <tr><td>XGBoost ROC-AUC</td><td>0.8432</td></tr>
+    <tr><td>Test-set annualized revenue exposure</td><td>$500,998.97</td></tr>
+    <tr><td>High-risk, high-value customers</td><td>349</td></tr>
+    <tr><td>Share of estimated exposure in target segment</td><td>56.34%</td></tr>
+    <tr><td>Hypothetical retention campaign ROI</td><td>57.3%</td></tr>
+  </tbody>
+</table>
+
+
+<hr>
+
+<h2>2. Business Problem &amp; Objectives</h2>
+
+<p>Customer churn creates a direct challenge for organizations that rely on recurring revenue. Losing customers affects monthly revenue, increases customer acquisition pressure, and can reduce the long-term value generated by existing customer relationships.</p>
+
+<p>Traditional churn reporting identifies customers who have already left but often provides limited insight into the financial implications of customer attrition.</p>
+
+<h3>Business Objectives</h3>
+
+<ol>
+  <li> what is the total revenue in danger by customer return</li>
+  <li> which factors have you influences the term?</li>
+  <li> how does customer retention change overtime and across different contract types?</li>
+  <li> how accurately can customer level turn probabilities be predicted, and which factors influence these predictions</li>
+</ol>
+
+<hr>
+
+<h2>3. Dataset &amp; Analytical Scope</h2>
+
+<table>
+  <thead>
+    <tr><th>Data Category</th><th>Variables</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Customer Information</td><td>Customer ID, gender, senior citizen, partner, dependents</td></tr>
+    <tr><td>Account Information</td><td>Tenure, contract type, payment method, paperless billing</td></tr>
+    <tr><td>Services</td><td>Internet service, online security, backup, device protection, tech support, streaming</td></tr>
+    <tr><td>Financial Information</td><td>Monthly charges, total charges</td></tr>
+    <tr><td>Target Variable</td><td>Churn</td></tr>
+  </tbody>
+</table>
+
+<h3>Data Preparation &amp; Quality Assessment</h3>
+
+<ul>
+  <li>Identified missing and inconsistent values.</li>
+  <li>Resolved whitespace-related inconsistencies in <code>TotalCharges</code>.</li>
+  <li>Converted financial and tenure variables to appropriate data types.</li>
+  <li>Standardized categorical service values.</li>
+  <li>Checked duplicate customer records and customer identifiers.</li>
+  <li>Created a binary churn indicator for statistical and machine-learning analysis.</li>
+  <li>Prepared analytical variables for customer segmentation and revenue calculations.</li>
+</ul>
+
+<p>The cleaned dataset was subsequently organized into a relational SQLite database.</p>
+
+<hr>
+
+<h2>4. Analytical Architecture</h2>
+
+<p>The project follows a structured analytical workflow, progressing from raw customer records to business recommendations.</p>
+
+<div align="center">
+  <svg viewBox="0 0 700 830" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L6,3 z" fill="#64748b"/>
+      </marker>
+    </defs>
+    <g fill="#e8f0fe" stroke="#5277aa" stroke-width="1.5">
+      <rect x="170" y="15" width="360" height="48" rx="8"/>
+      <rect x="170" y="105" width="360" height="48" rx="8"/>
+      <rect x="170" y="195" width="360" height="48" rx="8"/>
+      <rect x="170" y="285" width="360" height="48" rx="8"/>
+      <rect x="170" y="375" width="360" height="48" rx="8"/>
+      <rect x="170" y="465" width="360" height="48" rx="8"/>
+      <rect x="170" y="555" width="360" height="48" rx="8"/>
+      <rect x="170" y="645" width="360" height="48" rx="8"/>
+      <rect x="170" y="735" width="360" height="48" rx="8"/>
+    </g>
+    <g fill="#17365d" font-size="15" text-anchor="middle" font-family="Arial">
+      <text x="350" y="45">Raw Telecom Dataset — 7,043 Customers</text>
+      <text x="350" y="135">Data Quality Assessment</text>
+      <text x="350" y="225">Data Cleaning &amp; Transformation</text>
+      <text x="350" y="315">SQLite Relational Database</text>
+      <text x="350" y="405">SQL Segmentation &amp; Revenue Analysis</text>
+      <text x="350" y="495">Statistical &amp; Survival Analysis</text>
+      <text x="350" y="585">Predictive Modeling &amp; SHAP</text>
+      <text x="350" y="675">Probability-Weighted Revenue Exposure</text>
+      <text x="350" y="765">Retention Strategy &amp; ROI Assessment</text>
+    </g>
+    <g stroke="#64748b" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M350 63 V103"/>
+      <path d="M350 153 V193"/>
+      <path d="M350 243 V283"/>
+      <path d="M350 333 V373"/>
+      <path d="M350 423 V463"/>
+      <path d="M350 513 V553"/>
+      <path d="M350 603 V643"/>
+      <path d="M350 693 V733"/>
+    </g>
+  </svg>
+</div>
+
+<h3>Database Design</h3>
+<p> The debt was divided in three tables following star schema to improve the efficiency and standardization of data.</p>
+<table>
+  <thead>
+    <tr><th>Table</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>dim_customers</code></td><td>Customer-level demographic and account attributes</td></tr>
+    <tr><td><code>dim_services</code></td><td>Customer service subscriptions and configurations</td></tr>
+    <tr><td><code>fact_customer_billing</code></td><td>Tenure, monthly charges, total charges, and churn-related financial measures</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>5. SQL Analysis: Customer Cohorts &amp; Revenue Exposure</h2>
+
+<p>The first analytical stage focused on understanding how customer churn varies across account tenure and contract types.</p>
+
+<p>SQL was used to calculate customer counts by tenure, churn rates by contract type, monthly recurring revenue associated with churned customers, average revenue per user, and revenue exposure across customer segments.</p>
+
+<h3>5.1 Month-to-Month Customer Cohort Analysis</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Customer Tenure</th>
+      <th>Customers</th>
+      <th>Churn Rate</th>
+      <th>Direct MRR Lost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>0–12 months</td><td>1,994</td><td>51.35%</td><td>$68,301.45</td></tr>
+    <tr><td>13–24 months</td><td>737</td><td>37.72%</td><td>$21,980.30</td></tr>
+    <tr><td>25–48 months</td><td>802</td><td>32.92%</td><td>$22,557.00</td></tr>
+    <tr><td>Above 48 months</td><td>342</td><td>26.02%</td><td>$8,008.35</td></tr>
+    <tr><strong><td>Total</td><td>3,875</td><td>—</td><td>$120,847.10</td></strong></tr>
+  </tbody>
+</table>
+
+
+<h3>Business Interpretation</h3>
+
+<p>Customer churn is concentrated in the early lifecycle. The first 12 months represent the most vulnerable period, with a churn rate of 51.35%.</p>
+
+<p>The declining churn rate across longer-tenure cohorts suggests that early customer engagement, onboarding, and service experience may be important areas for retention intervention.</p>
+
+<p>The first-year customer segment also represents the largest direct monthly recurring revenue loss among the cohorts examined.</p>
+
+
+<h2>6. Statistical Analysis: Identifying Churn Drivers</h2>
+
+<p>Statistical hypothesis testing was used to determine whether observed differences in customer characteristics were associated with churn.</p>
+
+<h3>6.1 Chi-Square Tests of Independence</h3>
+
+<p>The chi-square test was applied to evaluate associations between churn and selected categorical variables.</p>
+
+<table>
+  <thead>
+    <tr><th>Variable</th><th>Chi-Square Statistic</th><th>P-Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Contract Type</td><td>1,184.60</td><td>5.86 × 10⁻²⁵⁸</td></tr>
+    <tr><td>Internet Service</td><td>732.31</td><td>9.57 × 10⁻¹⁶⁰</td></tr>
+    <tr><td>Automatic Payment</td><td>309.35</td><td>3.03 × 10⁻⁶⁹</td></tr>
+    <tr><td>Tech Support</td><td>190.17</td><td>2.92 × 10⁻⁴³</td></tr>
+  </tbody>
+</table>
+
+
+<p><strong>Interpretation:</strong> Contract type produced the largest chi-square statistic among the variables examined, followed by internet service and payment method.</p>
+
+<p>These results provide strong evidence of statistical association. They do not establish that any individual variable directly causes churn.</p>
+
+<h3>6.2 Monthly Billing Differences</h3>
+
+<p>Welch's independent-samples t-test was used to compare monthly charges between churned and retained customers.</p>
+
+<table>
+  <thead><tr><th>Metric</th><th>Churned Customers</th><th>Retained Customers</th></tr></thead>
+  <tbody>
+    <tr><td>Mean Monthly Charges</td><td>$74.44</td><td>$61.27</td></tr>
+    <tr><td>Standard Deviation</td><td>$24.67</td><td>$31.09</td></tr>
+  </tbody>
+</table>
+
+<h4>Test Results</h4>
+
+<ul>
+  <li>t-statistic: 18.4075</li>
+  <li>P-value: 8.59 × 10⁻⁷³</li>
+  <li>Mean difference: $13.18</li>
+</ul>
+
+<p><strong>Business Interpretation:</strong> Churned customers had higher average monthly charges than retained customers. This suggests that customers with higher recurring bills may represent an important segment for further investigation and targeted retention analysis.</p>
+
+<hr>
+
+<h2>7. Survival Analysis: Understanding Customer Lifecycle</h2>
+
+<p>A Kaplan–Meier survival estimator was used to examine the probability that a customer remains active over time.</p>
+
+<p>Unlike a conventional churn-rate comparison, survival analysis incorporates the timing of customer churn and provides a lifecycle-oriented view of retention.</p>
+
+<p>The Kaplan–Meier estimator is defined as:</p>
+
+<p><code>S(t) = Product of (1 - d_i / n_i)</code></p>
+
+<ul>
+  <li><code>t_i</code> represents an observed event time.</li>
+  <li><code>d_i</code> represents the number of churn events at time <code>t_i</code>.</li>
+  <li><code>n_i</code> represents the number of customers at risk immediately before time <code>t_i</code>.</li>
+</ul>
+
+<h3>7.1 Customer Retention Over Time</h3>
+
+<table>
+  <thead><tr><th>Customer Tenure</th><th>Estimated Retention Probability</th></tr></thead>
+  <tbody>
+    <tr><td>3 months</td><td>91.37%</td></tr>
+    <tr><td>6 months</td><td>88.48%</td></tr>
+    <tr><td>12 months</td><td>84.32%</td></tr>
+    <tr><td>24 months</td><td>78.87%</td></tr>
+    <tr><td>36 months</td><td>74.85%</td></tr>
+    <tr><td>48 months</td><td>70.88%</td></tr>
+    <tr><td>60 months</td><td>66.44%</td></tr>
+    <tr><td>72 months</td><td>59.28%</td></tr>
+  </tbody>
+</table>
+
+<h3>Graph 3: Kaplan–Meier Retention Estimates</h3>
+
+<div>
+  <svg viewBox="0 0 680 350" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <text x="340" y="24" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Estimated Customer Retention Over Time</text>
+    <g stroke="#999">
+      <line x1="80" y1="280" x2="630" y2="280"/>
+      <line x1="80" y1="55" x2="80" y2="280"/>
+      <line x1="80" y1="55" x2="630" y2="55" stroke-dasharray="4"/>
+      <line x1="80" y1="167" x2="630" y2="167" stroke-dasharray="4"/>
+    </g>
+    <g fill="currentColor" font-size="12" text-anchor="end">
+      <text x="70" y="284">0%</text>
+      <text x="70" y="171">50%</text>
+      <text x="70" y="59">100%</text>
+    </g>
+    <polyline points="100,74 170,80 240,90 310,103 380,112 450,121 520,131 600,147" fill="none" stroke="#3977b8" stroke-width="3"/>
+    <g fill="#3977b8">
+      <circle cx="100" cy="74" r="4"/><circle cx="170" cy="80" r="4"/>
+      <circle cx="240" cy="90" r="4"/><circle cx="310" cy="103" r="4"/>
+      <circle cx="380" cy="112" r="4"/><circle cx="450" cy="121" r="4"/>
+      <circle cx="520" cy="131" r="4"/><circle cx="600" cy="147" r="4"/>
+    </g>
+    <g fill="currentColor" font-size="12" text-anchor="middle">
+      <text x="100" y="302">3</text><text x="170" y="302">6</text>
+      <text x="240" y="302">12</text><text x="310" y="302">24</text>
+      <text x="380" y="302">36</text><text x="450" y="302">48</text>
+      <text x="520" y="302">60</text><text x="600" y="302">72</text>
+      <text x="350" y="333">Customer tenure (months)</text>
+    </g>
+  </svg>
+</div>
+
+<h3>7.2 Contract-Specific Retention</h3>
+
+<table>
+  <thead><tr><th>Contract Type</th><th>12-Month Survival Probability</th></tr></thead>
+  <tbody>
+    <tr><td>Month-to-month</td><td>70.31%</td></tr>
+    <tr><td>One-year</td><td>99.08%</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Business Interpretation:</strong> Contract structure is associated not only with overall churn rates but also with the timing of customer churn. This makes contract-specific lifecycle monitoring useful when designing retention strategies.</p>
+
+<hr>
+
+<h2>8. Predictive Modeling: Customer Churn Risk</h2>
+
+<p>The predictive modeling stage focused on estimating the probability of churn at the individual customer level.</p>
+
+<h3>8.1 Models Evaluated</h3>
+
+<h4>Logistic Regression</h4>
+<p>Used as an interpretable baseline classification model. The model estimates the probability of churn using a logistic function.</p>
+
+<h4>Random Forest</h4>
+<p>An ensemble learning model based on multiple decision trees. Random Forest can capture nonlinear relationships and interactions between customer attributes.</p>
+
+<h4>XGBoost</h4>
+<p>A gradient-boosted decision-tree algorithm that builds an ensemble sequentially, with each boosting iteration attempting to improve the errors of the previous ensemble.</p>
+
+<h3>8.2 Modeling Workflow</h3>
+
+<ul>
+  <li>80/20 stratified train-test split.</li>
+  <li>Random state: 42.</li>
+  <li>One-hot encoding for categorical variables.</li>
+  <li>Standardization of tenure, monthly charges, and total charges.</li>
+  <li>Class imbalance considerations.</li>
+  <li>Probability-based predictions.</li>
+  <li>ROC-AUC model evaluation.</li>
+  <li>SHAP-based model interpretation.</li>
+</ul>
+
+<h3>Graph 4: Model Performance Comparison</h3>
+
+<div>
+  <svg viewBox="0 0 680 350" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <text x="340" y="24" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Predictive Model Performance (ROC-AUC)</text>
+    <g stroke="#999">
+      <line x1="90" y1="280" x2="630" y2="280"/>
+      <line x1="90" y1="55" x2="90" y2="280"/>
+    </g>
+    <g fill="currentColor" font-size="12" text-anchor="end">
+      <text x="80" y="284">0.80</text>
+      <text x="80" y="209">0.82</text>
+      <text x="80" y="134">0.84</text>
+      <text x="80" y="59">0.86</text>
+    </g>
+    <g fill="#3977b8">
+      <rect x="155" y="127" width="90" height="153" rx="4"/>
+      <rect x="315" y="122" width="90" height="158" rx="4"/>
+      <rect x="475" y="117" width="90" height="163" rx="4"/>
+    </g>
+    <g fill="currentColor" font-size="13" text-anchor="middle">
+      <text x="200" y="116">0.8407</text>
+      <text x="360" y="111">0.8420</text>
+      <text x="520" y="106">0.8432</text>
+      <text x="200" y="302">Logistic Regression</text>
+      <text x="360" y="302">Random Forest</text>
+      <text x="520" y="302">XGBoost</text>
+    </g>
+  </svg>
+</div>
+
+<table>
+  <thead><tr><th>Model</th><th>ROC-AUC</th></tr></thead>
+  <tbody>
+    <tr><td>Logistic Regression</td><td>0.8407</td></tr>
+    <tr><td>Random Forest</td><td>0.8420</td></tr>
+    <tr><td>XGBoost</td><td>0.8432</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Interpretation:</strong> XGBoost achieved the highest ROC-AUC of 0.8432 among the evaluated models.</p>
+
+<p>The relatively small performance difference between the models is also relevant: a more complex model should not automatically be preferred without considering interpretability, calibration, operational requirements, and the cost of incorrect predictions.</p>
+
+<h3>8.3 Classification Threshold Analysis</h3>
+
+<p>A probability threshold of 0.01 was tested to investigate the effect of aggressive churn detection.</p>
+
+<table>
+  <thead><tr><th>Metric</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td>True Positives</td><td>374</td></tr>
+    <tr><td>False Positives</td><td>1,035</td></tr>
+    <tr><td>True Negatives</td><td>0</td></tr>
+    <tr><td>False Negatives</td><td>0</td></tr>
+    <tr><td>Recall</td><td>100%</td></tr>
+  </tbody>
+</table>
+
+<p>At this threshold, every test customer was classified as a potential churner.</p>
+
+<p><strong>Interpretation:</strong> Although recall reached 100%, the threshold produced no true negatives. This illustrates why a classification threshold should be selected according to the business cost of false positives and false negatives rather than maximizing recall alone.</p>
+
+<p>For a practical retention program, threshold selection should account for intervention costs, customer value, model calibration, and available retention capacity.</p>
+
+<h3>8.4 Model Interpretability Using SHAP</h3>
+
+<p>SHAP (SHapley Additive exPlanations) was used to examine the contribution of individual features to model predictions.</p>
+
+<table>
+  <thead><tr><th>Feature</th><th>Mean Absolute SHAP Value</th></tr></thead>
+  <tbody>
+    <tr><td>Two-year contract</td><td>0.6099</td></tr>
+    <tr><td>Tenure</td><td>0.4607</td></tr>
+    <tr><td>Fiber-optic internet</td><td>0.2861</td></tr>
+    <tr><td>One-year contract</td><td>0.2847</td></tr>
+    <tr><td>Monthly charges</td><td>0.1931</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Business Interpretation:</strong> Contract characteristics and customer tenure were among the most influential features in the evaluated model. SHAP provides model-specific explanations of feature contributions; these should not be interpreted as causal effects.</p>
+
+<hr>
+
+<h2>9. Financial Risk Analytics: Probability-Weighted Revenue Exposure</h2>
+
+<p>A key objective was to move beyond predicting whether a customer might churn and estimate the potential recurring revenue associated with that risk.</p>
+
+<p>A probability-weighted revenue exposure metric was developed:</p>
+
+<h3>Customer-Level Exposure</h3>
+
+<p><code>pCaR_i = P(Churn_i) × MRR_i</code></p>
+
+<p>Where:</p>
+<ul>
+  <li><code>P(Churn_i)</code> is the model-estimated churn probability for customer i.</li>
+  <li><code>MRR_i</code> is the customer's monthly recurring revenue.</li>
+</ul>
+
+<h3>Aggregate Exposure</h3>
+
+<p><code>pCaR_total = Sum of (pCaR_i)</code></p>
+
+<h3>Annualized Exposure</h3>
+
+<p><code>pCaR_annual = 12 × pCaR_monthly</code></p>
+
+<p>This metric provides an expected-value-style prioritization measure. It is not a guaranteed forecast of future revenue loss.</p>
+
+<h3>9.1 Test-Set Financial Exposure</h3>
+
+<table>
+  <thead><tr><th>Financial Metric</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Test-Set Customers</td><td>1,409</td></tr>
+    <tr><td>Total Monthly Recurring Revenue</td><td>$90,301.20</td></tr>
+    <tr><td>Annualized Recurring Revenue</td><td>$1,083,614.40</td></tr>
+    <tr><td>Monthly Probability-Weighted Exposure</td><td>$41,749.91</td></tr>
+    <tr><td>Annualized Probability-Weighted Exposure</td><td>$500,998.97</td></tr>
+    <tr><td>Exposure as a Percentage of MRR</td><td>46.23%</td></tr>
+  </tbody>
+</table>
+
+<h3>Graph 5: Revenue Exposure Composition</h3>
+
+<div>
+  <svg viewBox="0 0 680 330" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <text x="340" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Test-Set Monthly Revenue Composition</text>
+    <circle cx="260" cy="170" r="95" fill="none" stroke="#d6dce5" stroke-width="42"/>
+    <circle cx="260" cy="170" r="95" fill="none" stroke="#3977b8" stroke-width="42" stroke-dasharray="276 597" transform="rotate(-90 260 170)"/>
+    <g fill="currentColor" text-anchor="middle">
+      <text x="260" y="165" font-size="22" font-weight="bold">46.23%</text>
+      <text x="260" y="187" font-size="12">Exposure</text>
+    </g>
+    <rect x="430" y="120" width="15" height="15" fill="#3977b8"/>
+    <text x="455" y="133" fill="currentColor" font-size="13">Risk-weighted exposure</text>
+    <rect x="430" y="155" width="15" height="15" fill="#d6dce5"/>
+    <text x="455" y="168" fill="currentColor" font-size="13">Remaining revenue value</text>
+    <text x="430" y="210" fill="currentColor" font-size="13">$41,749.91 monthly exposure</text>
+    <text x="430" y="233" fill="currentColor" font-size="13">$48,551.29 remaining value</text>
+  </svg>
+</div>
+
+<p><em>The remaining amount is total MRR less probability-weighted exposure. This chart represents an analytical risk allocation, not actual lost revenue.</em></p>
+
+<hr>
+
+<h2>10. High-Risk, High-Value Customer Segmentation</h2>
+
+<p>Customer prioritization was based on two dimensions:</p>
+
+<ul>
+  <li>Predicted churn probability.</li>
+  <li>Monthly recurring revenue.</li>
+</ul>
+
+<p>The objective was to identify customers who combine elevated churn risk with substantial financial contribution.</p>
+
+<h3>Target Segment Definition</h3>
+
+<p>Customers were selected using the following criteria:</p>
+
+<ul>
+  <li>Predicted churn probability ≥ 0.60.</li>
+  <li>Monthly charges ≥ the test-set median of $69.95.</li>
+</ul>
+
+<h3>Segmentation Results</h3>
+
+<table>
+  <thead><tr><th>Metric</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td>Customers in Target Segment</td><td>349</td></tr>
+    <tr><td>Share of Test-Set Customers</td><td>24.77%</td></tr>
+    <tr><td>Annualized Probability-Weighted Exposure</td><td>$282,247.21</td></tr>
+    <tr><td>Share of Total Estimated Exposure</td><td>56.34%</td></tr>
+  </tbody>
+</table>
+
+<h3>Business Interpretation</h3>
+
+<p>Approximately one-quarter of the test population accounts for more than half of the estimated annualized revenue exposure.</p>
+
+<p>This demonstrates why prioritizing customers using both churn probability and financial contribution can be more commercially useful than ranking customers by churn probability alone.</p>
+
+<hr>
+
+<h2>11. Retention Strategy &amp; Financial Scenario Analysis</h2>
+
+<p>The final stage translated the risk analysis into a hypothetical retention intervention.</p>
+
+<p>A targeted campaign was modeled for the identified high-risk, high-value customer segment.</p>
+
+<h3>Campaign Assumptions</h3>
+
+<table>
+  <thead><tr><th>Component</th><th>Assumption</th></tr></thead>
+  <tbody>
+    <tr><td>Monthly Discount</td><td>$10</td></tr>
+    <tr><td>Monthly Technical Support Subsidy</td><td>$5</td></tr>
+    <tr><td>Total Monthly Incentive per Customer</td><td>$15</td></tr>
+    <tr><td>Annual Incentive Cost per Customer</td><td>$180</td></tr>
+    <tr><td>Assumed Relative Churn Reduction</td><td>35%</td></tr>
+    <tr><td>Target Customers</td><td>349</td></tr>
+  </tbody>
+</table>
+
+<h3>Financial Assessment</h3>
+
+<table>
+  <thead><tr><th>Financial Metric</th><th>Estimated Value</th></tr></thead>
+  <tbody>
+    <tr><td>Total Campaign Expenditure</td><td>$62,820.00</td></tr>
+    <tr><td>Estimated Preserved Revenue</td><td>$98,786.52</td></tr>
+    <tr><td>Net Financial Gain</td><td>$35,966.52</td></tr>
+    <tr><td>Revenue-to-Cost Ratio</td><td>1.57x</td></tr>
+    <tr><td>Estimated ROI</td><td>57.3%</td></tr>
+  </tbody>
+</table>
+
+<h3>Graph 6: Retention Campaign Financial Impact</h3>
+
+<div>
+  <svg viewBox="0 0 680 350" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <text x="340" y="24" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Hypothetical Retention Campaign Financial Impact</text>
+    <g stroke="#999">
+      <line x1="80" y1="280" x2="635" y2="280"/>
+      <line x1="80" y1="55" x2="80" y2="280"/>
+      <line x1="80" y1="55" x2="635" y2="55" stroke-dasharray="4"/>
+      <line x1="80" y1="167" x2="635" y2="167" stroke-dasharray="4"/>
+    </g>
+    <g fill="currentColor" font-size="12" text-anchor="end">
+      <text x="70" y="284">0</text>
+      <text x="70" y="171">50,000</text>
+      <text x="70" y="59">100,000</text>
+    </g>
+    <g fill="#3977b8">
+      <rect x="140" y="139" width="95" height="141" rx="4"/>
+      <rect x="305" y="58" width="95" height="222" rx="4"/>
+      <rect x="470" y="199" width="95" height="81" rx="4"/>
+    </g>
+    <g fill="currentColor" text-anchor="middle" font-size="12">
+      <text x="187" y="130">$62,820</text>
+      <text x="352" y="49">$98,786.52</text>
+      <text x="517" y="190">$35,966.52</text>
+      <text x="187" y="302">Campaign Cost</text>
+      <text x="352" y="302">Preserved Revenue</text>
+      <text x="517" y="302">Net Gain</text>
+    </g>
+  </svg>
+</div>
+
+<h3>ROI Calculation</h3>
+
+<p><code>ROI = ((Preserved Revenue - Campaign Cost) / Campaign Cost) × 100</code></p>
+
+<p><code>ROI = ((98,786.52 - 62,820) / 62,820) × 100</code></p>
+
+<p><strong>ROI ≈ 57.3%</strong></p>
+
+<h3>Business Interpretation</h3>
+
+<p>Under the assumed 35% relative reduction in churn, the modeled campaign generates a positive net financial gain.</p>
+
+<p>However, this is a scenario-based estimate rather than evidence of actual campaign effectiveness. The assumed churn reduction would need to be validated through an experiment, such as a randomized controlled retention campaign, before implementation.</p>
+
+<hr>
+
+<h2>12. Executive Recommendations</h2>
+
+<p>Based on the analytical findings, the following actions warrant further evaluation:</p>
+
+<table>
+  <thead>
+    <tr><th>Priority</th><th>Recommendation</th><th>Analytical Justification</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>High</strong></td>
+      <td>Strengthen early customer engagement</td>
+      <td>Highest churn concentration occurs in the first 12 months.</td>
+    </tr>
+    <tr>
+      <td><strong>High</strong></td>
+      <td>Prioritize high-risk, high-value accounts</td>
+      <td>24.77% of the test population represents 56.34% of estimated exposure.</td>
+    </tr>
+    <tr>
+      <td><strong>High</strong></td>
+      <td>Evaluate targeted retention incentives</td>
+      <td>Hypothetical campaign produces a positive modeled ROI.</td>
+    </tr>
+    <tr>
+      <td><strong>Medium</strong></td>
+      <td>Review month-to-month contract strategy</td>
+      <td>Contract type shows a strong statistical association with churn.</td>
+    </tr>
+    <tr>
+      <td><strong>Medium</strong></td>
+      <td>Investigate high monthly billing</td>
+      <td>Churned customers have higher average monthly charges.</td>
+    </tr>
+    <tr>
+      <td><strong>Medium</strong></td>
+      <td>Monitor lifecycle retention</td>
+      <td>Survival analysis identifies differences across contract structures.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>13. Technical Stack</h2>
+
+<table>
+  <thead><tr><th>Analytical Area</th><th>Tools &amp; Methodologies</th></tr></thead>
+  <tbody>
+    <tr><td>Data Preparation</td><td>Python, Pandas, NumPy</td></tr>
+    <tr><td>Database Management</td><td>SQLite, SQL</td></tr>
+    <tr><td>Statistical Analysis</td><td>SciPy, Chi-Square, Welch's t-test</td></tr>
+    <tr><td>Survival Analysis</td><td>Kaplan–Meier Estimator</td></tr>
+    <tr><td>Predictive Analytics</td><td>Scikit-learn, Random Forest, Logistic Regression, XGBoost</td></tr>
+    <tr><td>Model Interpretation</td><td>SHAP</td></tr>
+    <tr><td>Visualization</td><td>Matplotlib, Seaborn, Tableau</td></tr>
+    <tr><td>Financial Analysis</td><td>MRR, ARPU, Probability-Weighted Exposure, ROI Scenario Analysis</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>14. Project Structure</h2>
+
+<h3>Analytical Deliverables</h3>
+
+<ul>
+  <li>Cleaned customer dataset.</li>
+  <li>Relational SQLite database.</li>
+  <li>SQL cohort and revenue analysis.</li>
+  <li>Statistical analysis summaries.</li>
+  <li>Customer-level churn probability scores.</li>
+  <li>SHAP model interpretation.</li>
+  <li>Executive retention action ledger.</li>
+  <li>Revenue exposure and retention scenario assessment.</li>
+</ul>
+
+<hr>
+
+<h2>15. Limitations &amp; Further Development</h2>
+
+<p>The analysis provides a structured demonstration of customer risk and revenue prioritization, but several limitations should be acknowledged:</p>
+
+<ol>
+  <li>The dataset is observational and does not establish causal relationships.</li>
+  <li>Model probabilities should be calibrated and evaluated further before operational use.</li>
+  <li>The 35% churn reduction is a hypothetical campaign assumption.</li>
+  <li>Probability-weighted revenue exposure is an analytical estimate, not realized revenue loss.</li>
+  <li>The classification threshold requires further optimization against retention capacity and intervention costs.</li>
+  <li>Campaign effectiveness should be evaluated through controlled experimentation.</li>
+  <li>Customer lifetime value and longer-term intervention effects could be incorporated in future versions.</li>
+</ol>
+
+<hr>
+
+<h2>16. Conclusion</h2>
+
+<p>This project demonstrates an integrated approach to customer analytics in which SQL, statistical methods, survival analysis, and predictive modeling are connected to financial decision-making.</p>
+
+<p>Rather than treating churn as an isolated classification problem, the framework evaluates the relationship between customer behavior, recurring revenue, and potential financial exposure.</p>
+
+<p>The resulting analysis identifies vulnerable customer cohorts, quantifies probability-weighted revenue risk, and develops a financially prioritized retention scenario.</p>
+
+<p><strong>The broader objective is to transform customer data into decision-ready intelligence that supports revenue protection, resource allocation, and measurable business outcomes.</strong></p>
