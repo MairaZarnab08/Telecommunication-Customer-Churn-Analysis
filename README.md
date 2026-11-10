@@ -12,25 +12,10 @@
 
 <p>Customer churn is not simply a customer-retention problem. It represents a recurring revenue risk that can affect financial performance, customer lifetime value, and long-term business growth.</p>
 
-<p>This project develops an end-to-end analytical framework to identify customer churn patterns, quantify recurring revenue exposure, predict churn risk, and prioritize retention interventions based on potential financial impact.</p>
-
-<p>Using a dataset of <strong>7,043 telecom customers</strong>, I integrated SQL-based analytics, statistical hypothesis testing, survival analysis, predictive modeling, and financial scenario analysis to move from historical churn reporting toward forward-looking revenue protection.</p>
+<p>This project develops an end-to-end analytical framework to identify customer churn patterns, quantify recurring revenue exposure, predict churn risk, and prioritize retention interventions based on potential financial impact.Using a dataset of <strong>7,043 telecom customers</strong>, I integrated SQL-based analytics, statistical hypothesis testing, survival analysis, predictive modeling, and financial scenario analysis to move from historical churn reporting toward forward-looking revenue protection.</p>
 
 
 
-How can churn probability be translated into measurable financial exposure and potential revenue loss?
-
-
-
-Which customers represent the highest combination of churn risk and revenue contribution?
-
-
-
-How can retention resources be prioritized to protect the greatest amount of recurring revenue?
-
-
-
-What is the potential financial return of targeted retention strategies?</p>
 </blockquote>
 
 <h3>Project Highlights</h3>
