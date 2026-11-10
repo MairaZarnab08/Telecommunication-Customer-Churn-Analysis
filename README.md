@@ -66,10 +66,12 @@ What is the potential financial return of targeted retention strategies?</p>
 <h3>Business Objectives</h3>
 
 <ol>
-  <li> what is the total revenue in danger by customer return</li>
-  <li> which factors have you influences the term?</li>
-  <li> how does customer retention change overtime and across different contract types?</li>
-  <li> how accurately can customer level turn probabilities be predicted, and which factors influence these predictions</li>
+
+  <li>How can retention resources be prioritized to protect recurring revenue?</li>
+  <li>How much recurring revenue is associated with customer churn? </li>
+  <li>Which factors are most strongly associated with customer attrition? </li>
+  <li>How does customer retention change over time and across different contract types? </li>
+  <li> How accurately can customer-level churn probabilities be predicted, and which factors influence those predictions?</li>
 </ol>
 
 <hr>
@@ -152,7 +154,7 @@ What is the potential financial return of targeted retention strategies?</p>
 </div>
 
 <h3>Database Design</h3>
-<p> The debt was divided in three tables following star schema to improve the efficiency and standardization of data.</p>
+<p> The database was organized into three relational tables using a dimensional modeling approach to improve data organization, consistency, and analytical efficiency."</p>
 <table>
   <thead>
     <tr><th>Table</th><th>Purpose</th></tr>
@@ -330,9 +332,10 @@ What is the potential financial return of targeted retention strategies?</p>
 
 <hr>
 
-<h2>8. Predictive Modeling: Customer Churn Risk</h2>
 
-<p>The predictive modeling stage focused on estimating the probability of churn at the individual customer level.</p>
+
+
+<h2>8. Predictive Modeling: Customer Churn Risk</h2>
 
 <h3>8.1 Models Evaluated</h3>
 
@@ -347,387 +350,188 @@ What is the potential financial return of targeted retention strategies?</p>
 
 <h3>8.2 Modeling Workflow</h3>
 
+<p>The modeling workflow was designed to ensure reliable evaluation and prevent information leakage between training and testing data.</p>
+
 <ul>
-  <li>80/20 stratified train-test split.</li>
-  <li>Random state: 42.</li>
-  <li>One-hot encoding for categorical variables.</li>
-  <li>Standardization of tenure, monthly charges, and total charges.</li>
-  <li>Class imbalance considerations.</li>
-  <li>Probability-based predictions.</li>
-  <li>ROC-AUC model evaluation.</li>
-  <li>SHAP-based model interpretation.</li>
+    <li>Extracted customer-level features from the SQLite database using SQL joins.</li>
+    <li>Verified 7,043 customer records and unique customer IDs.</li>
+    <li>Applied one-hot encoding to categorical variables.</li>
+    <li>Prepared numerical features, including tenure, monthly charges, and total charges.</li>
+    <li>Divided the dataset into training (60%), validation (20%), and testing (20%) subsets using stratified sampling.</li>
+    <li>Applied class-weight adjustments to account for class imbalance.</li>
+    <li>Trained Logistic Regression, Random Forest, and XGBoost models.</li>
+    <li>Compared model performance using validation ROC-AUC.</li>
+    <li>Selected the best-performing model and optimized its classification threshold using validation data.</li>
+    <li>Evaluated final model performance on the independent test dataset.</li>
+    <li>Applied SHAP to interpret the selected model's predictions.</li>
 </ul>
 
-<h3>Graph 4: Model Performance Comparison</h3>
+<h3>8.3 Model Performance Comparison</h3>
 
-<div>
-  <svg viewBox="0 0 680 350" width="100%" xmlns="http://www.w3.org/2000/svg">
-    <text x="340" y="24" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Predictive Model Performance (ROC-AUC)</text>
-    <g stroke="#999">
-      <line x1="90" y1="280" x2="630" y2="280"/>
-      <line x1="90" y1="55" x2="90" y2="280"/>
-    </g>
-    <g fill="currentColor" font-size="12" text-anchor="end">
-      <text x="80" y="284">0.80</text>
-      <text x="80" y="209">0.82</text>
-      <text x="80" y="134">0.84</text>
-      <text x="80" y="59">0.86</text>
-    </g>
-    <g fill="#3977b8">
-      <rect x="155" y="127" width="90" height="153" rx="4"/>
-      <rect x="315" y="122" width="90" height="158" rx="4"/>
-      <rect x="475" y="117" width="90" height="163" rx="4"/>
-    </g>
-    <g fill="currentColor" font-size="13" text-anchor="middle">
-      <text x="200" y="116">0.8407</text>
-      <text x="360" y="111">0.8420</text>
-      <text x="520" y="106">0.8432</text>
-      <text x="200" y="302">Logistic Regression</text>
-      <text x="360" y="302">Random Forest</text>
-      <text x="520" y="302">XGBoost</text>
-    </g>
-  </svg>
-</div>
+<p>Three classification models were evaluated using validation ROC-AUC. XGBoost achieved the highest validation score of 0.8392 and was selected for final testing.</p>
 
-<table>
-  <thead><tr><th>Model</th><th>ROC-AUC</th></tr></thead>
-  <tbody>
-    <tr><td>Logistic Regression</td><td>0.8407</td></tr>
-    <tr><td>Random Forest</td><td>0.8420</td></tr>
-    <tr><td>XGBoost</td><td>0.8432</td></tr>
-  </tbody>
-</table>
+<p>Logistic Regression achieved a validation ROC-AUC of 0.8361, while Random Forest achieved 0.8385. The selected XGBoost model achieved a test ROC-AUC of 0.8422, demonstrating good discriminatory performance on unseen customer records.</p>
 
-<p><strong>Interpretation:</strong> XGBoost achieved the highest ROC-AUC of 0.8432 among the evaluated models.</p>
+<h3>8.4 Classification Threshold Optimization</h3>
 
-<p>The relatively small performance difference between the models is also relevant: a more complex model should not automatically be preferred without considering interpretability, calibration, operational requirements, and the cost of incorrect predictions.</p>
+<p>Instead of relying on the default 0.50 classification threshold, threshold selection was performed using validation data. The objective was to achieve approximately 80% recall for the churn class, reducing the number of customers who churn but are not identified by the model.</p>
 
-<h3>8.3 Classification Threshold Analysis</h3>
+<p>A threshold of 0.4799 was selected, producing validation precision of 49.18% and recall of 80.21%.</p>
 
-<p>A probability threshold of 0.01 was tested to investigate the effect of aggressive churn detection.</p>
+<p>On the independent test dataset, the model achieved 50.25% precision and 81.28% recall for the churn class, with an overall accuracy of 74%.</p>
 
-<table>
-  <thead><tr><th>Metric</th><th>Result</th></tr></thead>
-  <tbody>
-    <tr><td>True Positives</td><td>374</td></tr>
-    <tr><td>False Positives</td><td>1,035</td></tr>
-    <tr><td>True Negatives</td><td>0</td></tr>
-    <tr><td>False Negatives</td><td>0</td></tr>
-    <tr><td>Recall</td><td>100%</td></tr>
-  </tbody>
-</table>
+<p>The confusion matrix showed that the model correctly identified 304 of the 374 actual churners, while 70 churners were incorrectly classified as retained. It also identified 301 retained customers as potential churners.</p>
 
-<p>At this threshold, every test customer was classified as a potential churner.</p>
+<h3>8.5 Model Interpretability Using SHAP</h3>
 
-<p><strong>Interpretation:</strong> Although recall reached 100%, the threshold produced no true negatives. This illustrates why a classification threshold should be selected according to the business cost of false positives and false negatives rather than maximizing recall alone.</p>
+<p>SHAP (Shapley Additive exPlanations) was used to examine the contribution of individual features to the selected XGBoost model's predictions.</p>
 
-<p>For a practical retention program, threshold selection should account for intervention costs, customer value, model calibration, and available retention capacity.</p>
+<p>The five most influential features based on mean absolute SHAP values were:</p>
 
-<h3>8.4 Model Interpretability Using SHAP</h3>
+<ul>
+    <li>Two-year contract: 0.6541</li>
+    <li>Tenure: 0.4647</li>
+    <li>One-year contract: 0.3014</li>
+    <li>Fiber-optic internet: 0.2700</li>
+    <li>Monthly charges: 0.2598</li>
+</ul>
 
-<p>SHAP (SHapley Additive exPlanations) was used to examine the contribution of individual features to model predictions.</p>
+<p>Contract characteristics and customer tenure were among the most influential features in the model's predictions. Internet service type and monthly charges also contributed to churn-risk assessments. Mean absolute SHAP values indicate the magnitude of feature contributions, not their direction or causation.</p>
 
-<table>
-  <thead><tr><th>Feature</th><th>Mean Absolute SHAP Value</th></tr></thead>
-  <tbody>
-    <tr><td>Two-year contract</td><td>0.6099</td></tr>
-    <tr><td>Tenure</td><td>0.4607</td></tr>
-    <tr><td>Fiber-optic internet</td><td>0.2861</td></tr>
-    <tr><td>One-year contract</td><td>0.2847</td></tr>
-    <tr><td>Monthly charges</td><td>0.1931</td></tr>
-  </tbody>
-</table>
+<h3>8.6 Customer-Level Risk Scoring</h3>
 
-<p><strong>Business Interpretation:</strong> Contract characteristics and customer tenure were among the most influential features in the evaluated model. SHAP provides model-specific explanations of feature contributions; these should not be interpreted as causal effects.</p>
+<p>The selected model generated individual churn probabilities for all 1,409 customers in the test dataset. Based on these probabilities, customers were divided into three risk categories:</p>
 
-<hr>
+<ul>
+    <li>Low Risk (0–0.35): 678 customers</li>
+    <li>Medium Risk (above 0.35–0.65): 323 customers</li>
+    <li>High Risk (above 0.65–1.00): 408 customers</li>
+</ul>
+
+<p>These customer-level probability scores were exported for subsequent financial exposure analysis and retention prioritization.</p>
+
 
 <h2>9. Financial Risk Analytics: Probability-Weighted Revenue Exposure</h2>
 
-<p>A key objective was to move beyond predicting whether a customer might churn and estimate the potential recurring revenue associated with that risk.</p>
+<p>The objective of this stage was to move beyond predicting whether a customer might churn and estimate the recurring revenue associated with that risk.</p>
 
-<p>A probability-weighted revenue exposure metric was developed:</p>
+<p>A probability-weighted exposure metric, referred to as Probabilistic Capital at Risk (pCaR), was developed to quantify customer-level and portfolio-level revenue exposure.</p>
 
-<h3>Customer-Level Exposure</h3>
+<h3>9.1 Customer-Level Exposure</h3>
 
-<p><code>pCaR_i = P(Churn_i) × MRR_i</code></p>
+<p>For each customer, probability-weighted monthly revenue exposure was calculated by multiplying the predicted probability of churn by the customer's monthly recurring charges.</p>
 
-<p>Where:</p>
+<p><strong>pCaR = P(Churn) × Monthly Charges</strong></p>
+
+<h3>9.2 Aggregate Monthly Exposure</h3>
+
+<p>Individual customer exposure values were aggregated to estimate the total monthly probability-weighted revenue exposure across the test portfolio.</p>
+
+<p><strong>Monthly pCaR = Sum of Individual Customer pCaR Values</strong></p>
+
+<h3>9.3 Annualized Revenue Exposure</h3>
+
+<p>The monthly exposure was annualized by multiplying it by twelve to estimate the annual recurring revenue associated with predicted churn risk.</p>
+
+<p><strong>Annualized pCaR = Monthly pCaR × 12</strong></p>
+
+<h3>9.4 Financial Exposure Results</h3>
+
+<p>The financial risk analysis was performed on the 1,409 customers in the independent test dataset.</p>
+
 <ul>
-  <li><code>P(Churn_i)</code> is the model-estimated churn probability for customer i.</li>
-  <li><code>MRR_i</code> is the customer's monthly recurring revenue.</li>
+    <li>Total Monthly Recurring Revenue: $90,301.20</li>
+    <li>Annualized Recurring Revenue: $1,083,614.40</li>
+    <li>Monthly Probability-Weighted Exposure: $41,409.51</li>
+    <li>Annualized Probability-Weighted Exposure: $496,914.15</li>
+    <li>Exposure as a Percentage of Monthly Recurring Revenue: 45.86%</li>
 </ul>
 
-<h3>Aggregate Exposure</h3>
+<h3>9.5 Business Interpretation</h3>
 
-<p><code>pCaR_total = Sum of (pCaR_i)</code></p>
+<p>The test portfolio generated $90,301.20 in monthly recurring charges. After weighting each customer's monthly charges by their predicted probability of churn, the estimated monthly exposure was $41,409.51.</p>
 
-<h3>Annualized Exposure</h3>
+<p>Annualized, this represents approximately $496,914.15 in probability-weighted recurring revenue exposure. The exposure-to-MRR ratio of 45.86% indicates that the estimated exposure is equivalent to 45.86% of the test portfolio's monthly recurring charges.</p>
 
-<p><code>pCaR_annual = 12 × pCaR_monthly</code></p>
+<p>This figure should not be interpreted as guaranteed revenue loss. It is a probability-weighted estimate based on model predictions and assumes that current monthly charges persist over a twelve-month period.</p>
 
-<p>This metric provides an expected-value-style prioritization measure. It is not a guaranteed forecast of future revenue loss.</p>
-
-<h3>9.1 Test-Set Financial Exposure</h3>
-
-<table>
-  <thead><tr><th>Financial Metric</th><th>Value</th></tr></thead>
-  <tbody>
-    <tr><td>Test-Set Customers</td><td>1,409</td></tr>
-    <tr><td>Total Monthly Recurring Revenue</td><td>$90,301.20</td></tr>
-    <tr><td>Annualized Recurring Revenue</td><td>$1,083,614.40</td></tr>
-    <tr><td>Monthly Probability-Weighted Exposure</td><td>$41,749.91</td></tr>
-    <tr><td>Annualized Probability-Weighted Exposure</td><td>$500,998.97</td></tr>
-    <tr><td>Exposure as a Percentage of MRR</td><td>46.23%</td></tr>
-  </tbody>
-</table>
-
-<h3>Graph 5: Revenue Exposure Composition</h3>
-
-<div>
-  <svg viewBox="0 0 680 330" width="100%" xmlns="http://www.w3.org/2000/svg">
-    <text x="340" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Test-Set Monthly Revenue Composition</text>
-    <circle cx="260" cy="170" r="95" fill="none" stroke="#d6dce5" stroke-width="42"/>
-    <circle cx="260" cy="170" r="95" fill="none" stroke="#3977b8" stroke-width="42" stroke-dasharray="276 597" transform="rotate(-90 260 170)"/>
-    <g fill="currentColor" text-anchor="middle">
-      <text x="260" y="165" font-size="22" font-weight="bold">46.23%</text>
-      <text x="260" y="187" font-size="12">Exposure</text>
-    </g>
-    <rect x="430" y="120" width="15" height="15" fill="#3977b8"/>
-    <text x="455" y="133" fill="currentColor" font-size="13">Risk-weighted exposure</text>
-    <rect x="430" y="155" width="15" height="15" fill="#d6dce5"/>
-    <text x="455" y="168" fill="currentColor" font-size="13">Remaining revenue value</text>
-    <text x="430" y="210" fill="currentColor" font-size="13">$41,749.91 monthly exposure</text>
-    <text x="430" y="233" fill="currentColor" font-size="13">$48,551.29 remaining value</text>
-  </svg>
-</div>
-
-<p><em>The remaining amount is total MRR less probability-weighted exposure. This chart represents an analytical risk allocation, not actual lost revenue.</em></p>
-
-<hr>
 
 <h2>10. High-Risk, High-Value Customer Segmentation</h2>
 
-<p>Customer prioritization was based on two dimensions:</p>
+<p>Customer prioritization was based on two dimensions: predicted probability of churn and monthly recurring revenue contribution. The objective was to identify customers who combine elevated churn risk with relatively high financial contribution.</p>
+
+<h3>10.1 Target Segment Definition</h3>
+
+<p>Customers were classified as high-risk, high-value when they met both of the following conditions:</p>
 
 <ul>
-  <li>Predicted churn probability.</li>
-  <li>Monthly recurring revenue.</li>
+    <li>Predicted churn probability greater than or equal to 0.60.</li>
+    <li>Monthly charges greater than or equal to the test-set median of $69.95.</li>
 </ul>
 
-<p>The objective was to identify customers who combine elevated churn risk with substantial financial contribution.</p>
+<p>This approach identifies customers who represent both elevated churn risk and relatively high recurring revenue contribution.</p>
 
-<h3>Target Segment Definition</h3>
+<h3>10.2 Segmentation Results</h3>
 
-<p>Customers were selected using the following criteria:</p>
+<p>The segmentation analysis identified 359 customers meeting both criteria, representing 25.48% of the test population.</p>
 
-<ul>
-  <li>Predicted churn probability ≥ 0.60.</li>
-  <li>Monthly charges ≥ the test-set median of $69.95.</li>
-</ul>
+<p>The target segment accounted for $287,975.27 in annualized probability-weighted revenue exposure, equivalent to 57.95% of the total estimated exposure.</p>
 
-<h3>Segmentation Results</h3>
+<h3>10.3 Business Interpretation</h3>
 
-<table>
-  <thead><tr><th>Metric</th><th>Result</th></tr></thead>
-  <tbody>
-    <tr><td>Customers in Target Segment</td><td>349</td></tr>
-    <tr><td>Share of Test-Set Customers</td><td>24.77%</td></tr>
-    <tr><td>Annualized Probability-Weighted Exposure</td><td>$282,247.21</td></tr>
-    <tr><td>Share of Total Estimated Exposure</td><td>56.34%</td></tr>
-  </tbody>
-</table>
-
-<h3>Business Interpretation</h3>
-
-<p>Approximately one-quarter of the test population accounts for more than half of the estimated annualized revenue exposure.</p>
+<p>Approximately one-quarter of the test population accounts for nearly 58% of the estimated annualized revenue exposure.</p>
 
 <p>This demonstrates why prioritizing customers using both churn probability and financial contribution can be more commercially useful than ranking customers by churn probability alone.</p>
 
-<hr>
+<p>The identified segment provides a focused group for evaluating targeted retention interventions and allocating retention resources more efficiently.</p>
+
+<p>The risk-tier classification in Section 8 and this high-risk, high-value segment serve different purposes. Risk tiers group customers by probability intervals, whereas the target segment combines churn probability with revenue contribution.</p>
+
 
 <h2>11. Retention Strategy &amp; Financial Scenario Analysis</h2>
 
-<p>The final stage translated the risk analysis into a hypothetical retention intervention.</p>
+<p>The final analytical stage translated the customer risk assessment into a hypothetical retention intervention. A targeted retention campaign was modeled for the 359 customers identified in the high-risk, high-value segment.</p>
 
-<p>A targeted campaign was modeled for the identified high-risk, high-value customer segment.</p>
+<p>The objective was to evaluate whether the potential financial benefit of reducing churn could justify the cost of customer retention incentives.</p>
 
-<h3>Campaign Assumptions</h3>
+<h3>11.1 Campaign Assumptions</h3>
 
-<table>
-  <thead><tr><th>Component</th><th>Assumption</th></tr></thead>
-  <tbody>
-    <tr><td>Monthly Discount</td><td>$10</td></tr>
-    <tr><td>Monthly Technical Support Subsidy</td><td>$5</td></tr>
-    <tr><td>Total Monthly Incentive per Customer</td><td>$15</td></tr>
-    <tr><td>Annual Incentive Cost per Customer</td><td>$180</td></tr>
-    <tr><td>Assumed Relative Churn Reduction</td><td>35%</td></tr>
-    <tr><td>Target Customers</td><td>349</td></tr>
-  </tbody>
-</table>
+<p>The proposed retention campaign included a $10 monthly discount and a $5 monthly technical support subsidy, resulting in a total incentive of $15 per customer per month.</p>
 
-<h3>Financial Assessment</h3>
+<p>For 359 targeted customers, the estimated annual campaign expenditure was $64,620.</p>
 
-<table>
-  <thead><tr><th>Financial Metric</th><th>Estimated Value</th></tr></thead>
-  <tbody>
-    <tr><td>Total Campaign Expenditure</td><td>$62,820.00</td></tr>
-    <tr><td>Estimated Preserved Revenue</td><td>$98,786.52</td></tr>
-    <tr><td>Net Financial Gain</td><td>$35,966.52</td></tr>
-    <tr><td>Revenue-to-Cost Ratio</td><td>1.57x</td></tr>
-    <tr><td>Estimated ROI</td><td>57.3%</td></tr>
-  </tbody>
-</table>
+<p>The scenario assumed a 35% relative reduction in churn probability for each targeted customer. For example, a customer with a baseline churn probability of 60% would have an assumed post-intervention probability of 39%.</p>
 
-<h3>Graph 6: Retention Campaign Financial Impact</h3>
+<p><strong>Post-Intervention Churn Probability = Baseline Churn Probability × 0.65</strong></p>
 
-<div>
-  <svg viewBox="0 0 680 350" width="100%" xmlns="http://www.w3.org/2000/svg">
-    <text x="340" y="24" text-anchor="middle" font-size="18" font-weight="bold" fill="currentColor">Hypothetical Retention Campaign Financial Impact</text>
-    <g stroke="#999">
-      <line x1="80" y1="280" x2="635" y2="280"/>
-      <line x1="80" y1="55" x2="80" y2="280"/>
-      <line x1="80" y1="55" x2="635" y2="55" stroke-dasharray="4"/>
-      <line x1="80" y1="167" x2="635" y2="167" stroke-dasharray="4"/>
-    </g>
-    <g fill="currentColor" font-size="12" text-anchor="end">
-      <text x="70" y="284">0</text>
-      <text x="70" y="171">50,000</text>
-      <text x="70" y="59">100,000</text>
-    </g>
-    <g fill="#3977b8">
-      <rect x="140" y="139" width="95" height="141" rx="4"/>
-      <rect x="305" y="58" width="95" height="222" rx="4"/>
-      <rect x="470" y="199" width="95" height="81" rx="4"/>
-    </g>
-    <g fill="currentColor" text-anchor="middle" font-size="12">
-      <text x="187" y="130">$62,820</text>
-      <text x="352" y="49">$98,786.52</text>
-      <text x="517" y="190">$35,966.52</text>
-      <text x="187" y="302">Campaign Cost</text>
-      <text x="352" y="302">Preserved Revenue</text>
-      <text x="517" y="302">Net Gain</text>
-    </g>
-  </svg>
-</div>
+<h3>11.2 Financial Scenario Results</h3>
 
-<h3>ROI Calculation</h3>
+<p>Under the assumed intervention, the estimated preserved annualized revenue was $100,791.35, compared with a total campaign cost of $64,620.</p>
 
-<p><code>ROI = ((Preserved Revenue - Campaign Cost) / Campaign Cost) × 100</code></p>
+<p>The resulting net financial gain was estimated at $36,171.35.</p>
 
-<p><code>ROI = ((98,786.52 - 62,820) / 62,820) × 100</code></p>
+<h3>11.3 Benefit-to-Cost Ratio</h3>
 
-<p><strong>ROI ≈ 57.3%</strong></p>
+<p>The benefit-to-cost ratio was calculated by dividing estimated preserved revenue by total campaign expenditure.</p>
 
-<h3>Business Interpretation</h3>
+<p><strong>Benefit-to-Cost Ratio = Preserved Revenue / Campaign Cost</strong></p>
 
-<p>Under the assumed 35% relative reduction in churn, the modeled campaign generates a positive net financial gain.</p>
+<p>The resulting ratio was 1.56x, indicating an estimated $1.56 in preserved revenue for every $1 spent on retention incentives.</p>
 
-<p>However, this is a scenario-based estimate rather than evidence of actual campaign effectiveness. The assumed churn reduction would need to be validated through an experiment, such as a randomized controlled retention campaign, before implementation.</p>
+<h3>11.4 Return on Investment (ROI)</h3>
 
-<hr>
+<p>Net ROI was calculated by subtracting campaign expenditure from estimated preserved revenue and dividing the result by campaign expenditure.</p>
 
-<h2>12. Executive Recommendations</h2>
+<p><strong>ROI = (Preserved Revenue − Campaign Cost) / Campaign Cost × 100</strong></p>
 
-<p>Based on the analytical findings, the following actions warrant further evaluation:</p>
+<p>The modeled campaign produced an estimated net ROI of 55.98%, with a net financial gain of $36,171.35.</p>
 
-<table>
-  <thead>
-    <tr><th>Priority</th><th>Recommendation</th><th>Analytical Justification</th></tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>High</strong></td>
-      <td>Strengthen early customer engagement</td>
-      <td>Highest churn concentration occurs in the first 12 months.</td>
-    </tr>
-    <tr>
-      <td><strong>High</strong></td>
-      <td>Prioritize high-risk, high-value accounts</td>
-      <td>24.77% of the test population represents 56.34% of estimated exposure.</td>
-    </tr>
-    <tr>
-      <td><strong>High</strong></td>
-      <td>Evaluate targeted retention incentives</td>
-      <td>Hypothetical campaign produces a positive modeled ROI.</td>
-    </tr>
-    <tr>
-      <td><strong>Medium</strong></td>
-      <td>Review month-to-month contract strategy</td>
-      <td>Contract type shows a strong statistical association with churn.</td>
-    </tr>
-    <tr>
-      <td><strong>Medium</strong></td>
-      <td>Investigate high monthly billing</td>
-      <td>Churned customers have higher average monthly charges.</td>
-    </tr>
-    <tr>
-      <td><strong>Medium</strong></td>
-      <td>Monitor lifecycle retention</td>
-      <td>Survival analysis identifies differences across contract structures.</td>
-    </tr>
-  </tbody>
-</table>
+<h3>11.5 Business Interpretation and Limitations</h3>
 
-<hr>
+<p>Under the assumed 35% relative reduction in churn probability, the modeled campaign generates an estimated $100,791.35 in preserved annualized revenue against a campaign expenditure of $64,620.</p>
 
-<h2>13. Technical Stack</h2>
+<p>These results represent a hypothetical financial scenario rather than an observed campaign outcome. The analysis assumes that all targeted customers receive the full annual incentive and that the modeled churn reduction is achieved uniformly.</p>
 
-<table>
-  <thead><tr><th>Analytical Area</th><th>Tools &amp; Methodologies</th></tr></thead>
-  <tbody>
-    <tr><td>Data Preparation</td><td>Python, Pandas, NumPy</td></tr>
-    <tr><td>Database Management</td><td>SQLite, SQL</td></tr>
-    <tr><td>Statistical Analysis</td><td>SciPy, Chi-Square, Welch's t-test</td></tr>
-    <tr><td>Survival Analysis</td><td>Kaplan–Meier Estimator</td></tr>
-    <tr><td>Predictive Analytics</td><td>Scikit-learn, Random Forest, Logistic Regression, XGBoost</td></tr>
-    <tr><td>Model Interpretation</td><td>SHAP</td></tr>
-    <tr><td>Visualization</td><td>Matplotlib, Seaborn, Tableau</td></tr>
-    <tr><td>Financial Analysis</td><td>MRR, ARPU, Probability-Weighted Exposure, ROI Scenario Analysis</td></tr>
-  </tbody>
-</table>
+<p>The estimates also use recurring revenue rather than contribution margin and do not account for customer-specific churn timing, campaign uptake, or partial-year retention.</p>
 
-<hr>
-
-<h2>14. Project Structure</h2>
-
-<h3>Analytical Deliverables</h3>
-
-<ul>
-  <li>Cleaned customer dataset.</li>
-  <li>Relational SQLite database.</li>
-  <li>SQL cohort and revenue analysis.</li>
-  <li>Statistical analysis summaries.</li>
-  <li>Customer-level churn probability scores.</li>
-  <li>SHAP model interpretation.</li>
-  <li>Executive retention action ledger.</li>
-  <li>Revenue exposure and retention scenario assessment.</li>
-</ul>
-
-<hr>
-
-<h2>15. Limitations &amp; Further Development</h2>
-
-<p>The analysis provides a structured demonstration of customer risk and revenue prioritization, but several limitations should be acknowledged:</p>
-
-<ol>
-  <li>The dataset is observational and does not establish causal relationships.</li>
-  <li>Model probabilities should be calibrated and evaluated further before operational use.</li>
-  <li>The 35% churn reduction is a hypothetical campaign assumption.</li>
-  <li>Probability-weighted revenue exposure is an analytical estimate, not realized revenue loss.</li>
-  <li>The classification threshold requires further optimization against retention capacity and intervention costs.</li>
-  <li>Campaign effectiveness should be evaluated through controlled experimentation.</li>
-  <li>Customer lifetime value and longer-term intervention effects could be incorporated in future versions.</li>
-</ol>
-
-<hr>
-
-<h2>16. Conclusion</h2>
-
-<p>This project demonstrates an integrated approach to customer analytics in which SQL, statistical methods, survival analysis, and predictive modeling are connected to financial decision-making.</p>
-
-<p>Rather than treating churn as an isolated classification problem, the framework evaluates the relationship between customer behavior, recurring revenue, and potential financial exposure.</p>
-
-<p>The resulting analysis identifies vulnerable customer cohorts, quantifies probability-weighted revenue risk, and develops a financially prioritized retention scenario.</p>
-
-<p><strong>The broader objective is to transform customer data into decision-ready intelligence that supports revenue protection, resource allocation, and measurable business outcomes.</strong></p>
+<p>Actual campaign effectiveness would need to be evaluated through controlled experimentation, such as a randomized retention campaign, before the strategy could be considered validated for operational implementation.</p>
