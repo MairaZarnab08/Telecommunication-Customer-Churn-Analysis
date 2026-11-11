@@ -1,9 +1,17 @@
 
 <div align="center">
-  <h1>ENTERPRISE REVENUE PROTECTION</h1>
-  <h2>Customer Churn &amp; Financial Risk Analytics</h2>
+  <h2>ENTERPRISE REVENUE PROTECTION: Customer Churn &amp; Financial Risk Analytics</h2>
   <p><strong>End-to-End Data Analytics Project</strong></p>
   <p>SQL | Python | Statistical Analysis | Machine Learning | Revenue Intelligence</p>
+  </a>
+
+
+
+  <p align="center">
+  <a href="https://public.tableau.com/app/profile/maira.zarnab/viz/Book1_17837346834310/Executive_Overview" target="_blank">Tableau Dashboards</a>
+  &nbsp; • &nbsp;
+  <a href="http://localhost:8888/notebooks/Work/Tech/Projects/Untitled.ipynb" target="_blank">Jupyter Notebook</a>
+</p>
 </div>
 
 <hr>
