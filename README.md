@@ -39,7 +39,7 @@
     <tr><td>Customers analyzed</td><td>7,043</td></tr>
     <tr><td>Highest-risk contract segment</td><td>Month-to-Month</td></tr>
     <tr><td>Month-to-month churn rate (0–12 months)</td><td>51.35%</td></tr>
-    <tr><td>XGBoost ROC-AUC</td><td>0.8432</td></tr>
+    <tr><td>XGBoost ROC-AUC</td><td>0.8387</td></tr>
     <tr><td>Test-set annualized revenue exposure</td><td>$500,998.97</td></tr>
     <tr><td>High-risk, high-value customers</td><td>349</td></tr>
     <tr><td>Share of estimated exposure in target segment</td><td>56.34%</td></tr>
@@ -56,7 +56,7 @@
 
   <li>How can retention resources be prioritized to protect recurring revenue?</li>
   <li>How much recurring revenue is associated with customer churn? </li>
-  <li>Which factors are most strongly associated with customer attrition? </li>
+  <li>Which factors are most strongly associated with customer chrun? </li>
   <li>How does customer retention change over time and across different contract types? </li>
   <li> How accurately can customer-level churn probabilities be predicted, and which factors influence those predictions?</li>
 </ol>
@@ -155,13 +155,13 @@
 
 <hr>
 
-<h2>5. SQL Analysis: Customer Cohorts &amp; Revenue Exposure</h2>
+<h2>5. SQL Analysis: Customer Segmentation &amp; Revenue Exposure</h2>
 
 <p>The first analytical stage focused on understanding how customer churn varies across account tenure and contract types.</p>
 
 <p>SQL was used to calculate customer counts by tenure, churn rates by contract type, monthly recurring revenue associated with churned customers, average revenue per user, and revenue exposure across customer segments.</p>
 
-<h3>5.1 Month-to-Month Customer Cohort Analysis</h3>
+<h3>5.1 Month-to-Month Customer Segmentation Analysis</h3>
 
 <table>
   <thead>
@@ -355,9 +355,49 @@
 
 <h3>8.3 Model Performance Comparison</h3>
 
-<p>Three classification models were evaluated using validation ROC-AUC. XGBoost achieved the highest validation score of 0.8392 and was selected for final testing.</p>
+<h3>8.3 Model Performance Comparison</h3>
 
-<p>Logistic Regression achieved a validation ROC-AUC of 0.8361, while Random Forest achieved 0.8385. The selected XGBoost model achieved a test ROC-AUC of 0.8422, demonstrating good discriminatory performance on unseen customer records.</p>
+<p>
+    Three classification algorithms were evaluated to identify the most
+    suitable model for predicting customer churn: Logistic Regression,
+    Random Forest, and XGBoost.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Model</th>
+            <th>Validation ROC-AUC</th>
+            <th>Selection Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Logistic Regression</td>
+            <td>[Insert latest score]</td>
+            <td>Evaluated</td>
+        </tr>
+        <tr>
+            <td>Random Forest</td>
+            <td>[Insert latest score]</td>
+            <td><strong>Selected</strong></td>
+        </tr>
+        <tr>
+            <td>XGBoost</td>
+            <td>[Insert latest score]</td>
+            <td>Evaluated</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="model-highlight">
+    <h4>Selected Model: Random Forest</h4>
+    <p>
+        Random Forest was selected based on its validation performance.
+        It was then evaluated on an independent test dataset to assess
+        its ability to identify customers at risk of churn.
+    </p>
+</div>
 
 <h3>8.4 Classification Threshold Optimization</h3>
 
@@ -493,7 +533,7 @@
 
 <h3>11.2 Financial Scenario Results</h3>
 
-<p>Under the assumed intervention, the estimated preserved annualized revenue was $100,791.35, compared with a total campaign cost of $64,620.</p>
+<p>Under the assumed intervention, the estimated preserved annualized revenue was $100,846.53, compared with a total campaign cost of $64,620.</p>
 
 <p>The resulting net financial gain was estimated at $36,171.35.</p>
 
@@ -511,7 +551,7 @@
 
 <p><strong>ROI = (Preserved Revenue − Campaign Cost) / Campaign Cost × 100</strong></p>
 
-<p>The modeled campaign produced an estimated net ROI of 55.98%, with a net financial gain of $36,171.35.</p>
+<p>The modeled campaign produced an estimated net ROI of 56.06%, with a net financial gain of $36,226.53.</p>
 
 <h3>11.5 Business Interpretation and Limitations</h3>
 
