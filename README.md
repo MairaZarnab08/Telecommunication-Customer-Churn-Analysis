@@ -374,18 +374,18 @@
     <tbody>
         <tr>
             <td>Logistic Regression</td>
-            <td>[Insert latest score]</td>
+            <td>0.8364</td>
             <td>Evaluated</td>
         </tr>
         <tr>
             <td>Random Forest</td>
-            <td>[Insert latest score]</td>
-            <td><strong>Selected</strong></td>
+            <td>0.8386</td>
+            <td>Evaluated</td>
         </tr>
         <tr>
             <td>XGBoost</td>
-            <td>[Insert latest score]</td>
-            <td>Evaluated</td>
+            <td>0.8387</td>
+            <td><strong>Selected</strong></td>
         </tr>
     </tbody>
 </table>
@@ -403,11 +403,11 @@
 
 <p>Instead of relying on the default 0.50 classification threshold, threshold selection was performed using validation data. The objective was to achieve approximately 80% recall for the churn class, reducing the number of customers who churn but are not identified by the model.</p>
 
-<p>A threshold of 0.4799 was selected, producing validation precision of 49.18% and recall of 80.21%.</p>
+<p>A threshold of 0.4799 was selected, producing validation precision of 48.62% and recall of 80.21%.</p>
 
-<p>On the independent test dataset, the model achieved 50.25% precision and 81.28% recall for the churn class, with an overall accuracy of 74%.</p>
+<p>On the independent test dataset, the model achieved 50.66% precision and 81.55% recall for the churn class, with an overall accuracy of 74%.</p>
 
-<p>The confusion matrix showed that the model correctly identified 304 of the 374 actual churners, while 70 churners were incorrectly classified as retained. It also identified 301 retained customers as potential churners.</p>
+<p>The confusion matrix showed that the model correctly identified 305 of the 374 actual churners, while 69 churners were incorrectly classified as retained. It also identified 305 retained customers as potential churners.</p>
 
 <h3>8.5 Model Interpretability Using SHAP</h3>
 
@@ -416,11 +416,11 @@
 <p>The five most influential features based on mean absolute SHAP values were:</p>
 
 <ul>
-    <li>Two-year contract: 0.6541</li>
-    <li>Tenure: 0.4647</li>
-    <li>One-year contract: 0.3014</li>
-    <li>Fiber-optic internet: 0.2700</li>
-    <li>Monthly charges: 0.2598</li>
+    <li>Two-year contract: 0.6564</li>
+    <li>Tenure: 0.4615</li>
+    <li>One-year contract: 0.3016</li>
+    <li>Fiber-optic internet: 0.2706</li>
+    <li>Monthly charges: 0.2694</li>
 </ul>
 
 <p>Contract characteristics and customer tenure were among the most influential features in the model's predictions. Internet service type and monthly charges also contributed to churn-risk assessments. Mean absolute SHAP values indicate the magnitude of feature contributions, not their direction or causation.</p>
@@ -430,9 +430,9 @@
 <p>The selected model generated individual churn probabilities for all 1,409 customers in the test dataset. Based on these probabilities, customers were divided into three risk categories:</p>
 
 <ul>
-    <li>Low Risk (0–0.35): 678 customers</li>
-    <li>Medium Risk (above 0.35–0.65): 323 customers</li>
-    <li>High Risk (above 0.65–1.00): 408 customers</li>
+    <li>Low Risk (0–0.35): 675 customers</li>
+    <li>Medium Risk (above 0.35–0.65): 332 customers</li>
+    <li>High Risk (above 0.65–1.00): 402 customers</li>
 </ul>
 
 <p>These customer-level probability scores were exported for subsequent financial exposure analysis and retention prioritization.</p>
@@ -469,16 +469,16 @@
 <ul>
     <li>Total Monthly Recurring Revenue: $90,301.20</li>
     <li>Annualized Recurring Revenue: $1,083,614.40</li>
-    <li>Monthly Probability-Weighted Exposure: $41,409.51</li>
-    <li>Annualized Probability-Weighted Exposure: $496,914.15</li>
-    <li>Exposure as a Percentage of Monthly Recurring Revenue: 45.86%</li>
+    <li>Monthly Probability-Weighted Exposure: $41,423.51</li>
+    <li>Annualized Probability-Weighted Exposure: $497,080.46</li>
+    <li>Exposure as a Percentage of Monthly Recurring Revenue: 45.87%</li>
 </ul>
 
 <h3>9.5 Business Interpretation</h3>
 
 <p>The test portfolio generated $90,301.20 in monthly recurring charges. After weighting each customer's monthly charges by their predicted probability of churn, the estimated monthly exposure was $41,409.51.</p>
 
-<p>Annualized, this represents approximately $496,914.15 in probability-weighted recurring revenue exposure. The exposure-to-MRR ratio of 45.86% indicates that the estimated exposure is equivalent to 45.86% of the test portfolio's monthly recurring charges.</p>
+<p>Annualized, this represents approximately $497,080.46 in probability-weighted recurring revenue exposure. The exposure-to-MRR ratio of 45.87% indicates that the estimated exposure is equivalent to 45.87% of the test portfolio's monthly recurring charges.</p>
 
 <p>This figure should not be interpreted as guaranteed revenue loss. It is a probability-weighted estimate based on model predictions and assumes that current monthly charges persist over a twelve-month period.</p>
 
@@ -502,11 +502,11 @@
 
 <p>The segmentation analysis identified 359 customers meeting both criteria, representing 25.48% of the test population.</p>
 
-<p>The target segment accounted for $287,975.27 in annualized probability-weighted revenue exposure, equivalent to 57.95% of the total estimated exposure.</p>
+<p>The target segment accounted for $288,132.93 in annualized probability-weighted revenue exposure, equivalent to 57.95% of the total estimated exposure.</p>
 
 <h3>10.3 Business Interpretation</h3>
 
-<p>Approximately one-quarter of the test population accounts for nearly 58% of the estimated annualized revenue exposure.</p>
+<p>Approximately one-quarter of the test population accounts for nearly 57.97% of the estimated annualized revenue exposure.</p>
 
 <p>This demonstrates why prioritizing customers using both churn probability and financial contribution can be more commercially useful than ranking customers by churn probability alone.</p>
 
@@ -535,7 +535,7 @@
 
 <p>Under the assumed intervention, the estimated preserved annualized revenue was $100,846.53, compared with a total campaign cost of $64,620.</p>
 
-<p>The resulting net financial gain was estimated at $36,171.35.</p>
+<p>The resulting net financial gain was estimated at $36,226.53.</p>
 
 <h3>11.3 Benefit-to-Cost Ratio</h3>
 
